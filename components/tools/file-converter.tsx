@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -21,8 +21,15 @@ const formSchema = z.object({
 	file: z.string().url(),
 });
 
-export default function FileConverter() {
+const FILE_NAMES = {
+	webp: "WebP",
+	jpg: "JPG",
+	png: "PNG",
+};
+
+export default function FileConverter({ fromType, toType }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [fileName, setFileName] = useState("No file chosen");
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -31,98 +38,187 @@ export default function FileConverter() {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	// function onSubmit(values: z.infer<typeof formSchema>) {
+	// 	if (fileInputRef.current?.files?.length) {
+	// 		const file = fileInputRef.current.files[0];
+
+	// 		let convertFunction = null;
+	// 		if (fromType === "webp" && toType === "jpg") {
+	// 			convertFunction = webpToJpg;
+	// 		}
+
+	// 		if (convertFunction) {
+	// 			const url = convertFunction(file);
+
+	// 			let fileName = file.name;
+	// 			const dotIndex = fileName.lastIndexOf(".");
+
+	// 			// Check if the file name has an extension and does not start with a dot
+	// 			if (dotIndex > 0) {
+	// 				fileName = fileName.substring(0, dotIndex); // Remove the extension
+	// 			}
+
+	// 			downloadFile(
+	// 				url,
+	// 				`${fileName} (Converted by Lumotools.com).${toType}`
+	// 			);
+	// 		}
+	// 	}
+	// }
+
+	function onButtonPress() {
 		if (fileInputRef.current?.files?.length) {
 			const file = fileInputRef.current.files[0];
-			
-			webpToJpg(file);
+
+			let convertFunction = null;
+			if (fromType === "webp" && toType === "jpg") {
+				convertFunction = webpToJpg;
+			}
+
+			if (convertFunction) {
+					convertFunction(file)
+						.then((url) => {
+							let fileName = file.name;
+							const dotIndex = fileName.lastIndexOf(".");
+
+							// Check if the file name has an extension and does not start with a dot
+							if (dotIndex > 0) {
+								fileName = fileName.substring(0, dotIndex); // Remove the extension
+							}
+
+							downloadFile(
+								url,
+								`${fileName} (Converted by Lumotools.com).${toType}`
+							);
+						})
+						.catch((error) => {
+							alert(error.message);
+						});
+				
+			}
 		}
 	}
 
+	const handleFileChange = (event) => {
+		const file = event.target.files[0];
+		if (file) {
+			setFileName(file.name);
+		} else {
+			setFileName("No file chosen");
+		}
+	};
+
 	return (
-			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="flex flex-col gap-4"
-				>
-					<FormField
-						control={form.control}
-						name="file"
-						render={({ field }) => {
-							const {ref, ...rest} = field;
-							return (
-								<FormItem>
-									<FormLabel htmlFor="image">
-										WebP Image
-									</FormLabel>
-									<FormControl>
-										<Input
-											id="image"
-											type="file"
-											accept=".webp"
-											{...rest}
-											ref={(e) => {
-												ref(e);
-												fileInputRef.current = e;
-											}}
-										/>
-									</FormControl>
-									<FormDescription>
-										Upload a WebP image to convert to JPG.
-									</FormDescription>
-									<FormMessage />
-								</FormItem>
-							);
-						}}
-					></FormField>
-					<Button type="submit">Download as JPG</Button>
-				</form>
-			</Form>
+		<div className="flex flex-col gap-3 w-full max-w-xl">
+			<div className="relative flex flex-col items-center justify-center gap-3 w-full h-48 p-4 rounded-lg border border-input cursor-pointer">
+				<input
+					type="file"
+					id="image"
+					accept={`.${fromType}`}
+					ref={fileInputRef}
+					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+					onChange={handleFileChange}
+				/>
+				<label>Click to upload file or drag-and-drop</label>
+				<label>{fileName}</label>
+			</div>
+				<Button className="flex-1" onClick={onButtonPress}>
+					Download as {FILE_NAMES[toType]}
+				</Button>
+		</div>
 	);
+
+	// return (
+	// 	<Form {...form}>
+	// 		<form
+	// 			onSubmit={form.handleSubmit(onSubmit)}
+	// 			className="flex flex-col gap-4"
+	// 		>
+	// 			<FormField
+	// 				control={form.control}
+	// 				name="file"
+	// 				render={({ field }) => {
+	// 					const { ref, ...rest } = field;
+	// 					return (
+	// 						<FormItem>
+	// 							<FormLabel htmlFor="image">
+	// 								{FILE_NAMES[fromType]} Image
+	// 							</FormLabel>
+	// 							<FormControl>
+	// 								<Input
+	// 									id="image"
+	// 									type="file"
+	// 									accept={`.${fromType}`}
+	// 									{...rest}
+	// 									ref={(e) => {
+	// 										ref(e);
+	// 										fileInputRef.current = e;
+	// 									}}
+	// 								/>
+	// 							</FormControl>
+	// 							<FormDescription>
+	// 								Upload a {FILE_NAMES[fromType]} image to
+	// 								convert to {FILE_NAMES[toType]}.
+	// 							</FormDescription>
+	// 							<FormMessage />
+	// 						</FormItem>
+	// 					);
+	// 				}}
+	// 			></FormField>
+	// 			<Button type="submit">Download as {FILE_NAMES[toType]}</Button>
+	// 		</form>
+	// 	</Form>
+	// );
 }
 
-function webpToJpg(file: File) {
-    if (file) {
-        // Ensure it's a WEBP image
-        if (file.type === "image/webp") {
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    // Create a canvas element to draw the WEBP image
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+function webpToJpg(file) {
+	return new Promise((resolve, reject) => {
+		if (file) {
+			// Ensure it's a WEBP image
+			if (file.type === "image/webp") {
+				const reader = new FileReader();
 
-                    // Draw the image onto the canvas
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
+				reader.onload = function (event) {
+					const img = new Image();
+					img.onload = function () {
+						// Create a canvas element to draw the WEBP image
+						const canvas = document.createElement("canvas");
+						canvas.width = img.width;
+						canvas.height = img.height;
 
-                    // Convert the canvas to a JPG image
-                    const jpgUrl = canvas.toDataURL('image/jpeg', 1.0);
-                    
-                    // Download or display the JPG image
-                    downloadImage(jpgUrl, 'converted-image.jpg');
-                };
+						// Draw the image onto the canvas
+						const ctx = canvas.getContext("2d");
+						ctx.drawImage(img, 0, 0);
 
-                img.src = event.target.result;
-            };
+						// Convert the canvas to a JPG image
+						const jpgUrl = canvas.toDataURL("image/jpeg", 1.0);
 
-            reader.readAsDataURL(file);
-        } else {
-            alert("Please upload a WEBP image.");
-        }
-    } else {
-        alert("Please upload a file.");
-    }
+						// Resolve the promise with the JPG URL
+						resolve(jpgUrl);
+					};
+
+					img.onerror = reject; // Handle image loading error
+
+					img.src = event.target.result;
+				};
+
+				reader.onerror = reject; // Handle file reading error
+
+				reader.readAsDataURL(file);
+			} else {
+				reject(new Error("Please upload a WEBP image."));
+			}
+		} else {
+			reject(new Error("Please upload a file."));
+		}
+	});
 }
 
-function downloadImage(url, fileName) {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+function downloadFile(url, fileName) {
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
 }
