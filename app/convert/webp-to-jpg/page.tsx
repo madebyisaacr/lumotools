@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function Page() {
 	return (
-		<div className="w-full flex flex-col gap-12 items-center w-full">
+		<div className="w-full flex flex-col gap-12 items-center">
 			<div className="flex flex-col gap-4 items-center w-full">
-				<h1 className="text-5xl font-semibold">
+				<h1 className="text-5xl font-semibold w-full text-center">
 					Free WebP to JPG Converter
 				</h1>
-				<p>
+				<p className="w-full text-center">
 					Convert WebP images to JPG instantly with this free online
 					tool.
 				</p>
