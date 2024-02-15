@@ -1,25 +1,20 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
+import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const FILE_NAMES = {
-	webp: "WebP",
-	jpg: "JPG",
-	png: "PNG",
-};
-
 export default function FileConverter({ fromType, toType }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [fileName, setFileName] = useState("");
-	const [image, setImage] = useState("");
+	const [file, setFile] = useState<File | null>(null);
+
+	const fromFileType = fileTypes[fromType] || {};
+	const toFileType = fileTypes[toType] || {};
 
 	function onButtonPress() {
-		if (fileInputRef.current?.files?.length) {
-			const file = fileInputRef.current.files[0];
-
+		if (file) {
 			let convertFunction = null;
 			if (fromType === "webp" && toType === "jpg") {
 				convertFunction = webpToJpg;
@@ -48,17 +43,49 @@ export default function FileConverter({ fromType, toType }) {
 		}
 	}
 
+	function handlePaste(e) {
+		if (!fromFileType.allowClipboard) {
+			return
+		}
+
+		// Prevent the default pasting event
+		e.preventDefault();
+
+		// Check if there's anything in the clipboard data
+		if (e.clipboardData) {
+			// Get the items from the clipboard
+			const items = e.clipboardData.items;
+
+			// Loop through the clipboard items
+			for (let i = 0; i < items.length; i++) {
+				console.log(items[i].type, items[i].kind);
+				// Check if the item is an image
+				if (items[i].type.indexOf("image") !== -1) {
+					// Get the image file
+					setFile(items[i].getAsFile());
+
+					break;
+				}
+			}
+		}
+	}
+
 	const handleFileChange = (event) => {
 		const file = event.target.files[0];
 		if (file) {
-			const imageUrl = URL.createObjectURL(file);
-			setImage(imageUrl);
-			setFileName(file.name);
+			setFile(file);
 		} else {
-			setFileName("");
-			setImage("");
+			setFile(null);
 		}
 	};
+
+	useEffect(() => {
+		document.addEventListener("paste", handlePaste);
+
+		return () => {
+			document.removeEventListener("paste", handlePaste);
+		};
+	}, []);
 
 	return (
 		<div className="flex flex-col gap-3 items-center w-full">
@@ -66,20 +93,24 @@ export default function FileConverter({ fromType, toType }) {
 				<input
 					type="file"
 					id="image"
-					accept={`.${fromType}`}
+					accept={fromFileType.extensions
+						.map((item) => "." + item)
+						.join(", ")}
 					ref={fileInputRef}
 					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 					onChange={handleFileChange}
 				/>
 				<div className="flex flex-col gap-3 flex-1 items-center justify-center">
-					{image.length ? (
+					{file ? (
 						<>
 							<img
-								src={image}
-								alt={fileName}
+								src={URL.createObjectURL(file)}
+								alt={file.name}
 								className="h-36 object-cover rounded-md"
 							/>
-							<span className="w-full text-center truncate text-lg font-semibold">{fileName}</span>
+							<span className="w-full text-center truncate text-lg font-semibold">
+								{file.name}
+							</span>
 						</>
 					) : (
 						<div className="bg-zinc-200 size-20 flex items-center justify-center border border-zinc-300 rounded-full">
@@ -87,13 +118,20 @@ export default function FileConverter({ fromType, toType }) {
 						</div>
 					)}
 					<div />
-					<label>Click to upload image or drag-and-drop</label>
+					<label>
+						Click to upload {fromFileType.name}{" "}
+						{fromFileType.titles[0]}
+						{fromFileType.allowClipboard
+							? `, drag-and-drop, or paste ${fromFileType.titles[0]} from clipboard.`
+							: " or drag-and-drop."}
+					</label>
 				</div>
-				{image.length ? (
-				<Button className="w-fit z-10" onClick={onButtonPress}>
-					<Download size={16} strokeWidth={3} className="mr-3" />
-					Download as {FILE_NAMES[toType]}
-				</Button>) : null}
+				{file ? (
+					<Button className="w-fit z-10" onClick={onButtonPress}>
+						<Download size={16} strokeWidth={3} className="mr-3" />
+						Download as {toFileType.name}
+					</Button>
+				) : null}
 			</div>
 		</div>
 	);
