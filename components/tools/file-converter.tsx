@@ -15,10 +15,7 @@ export default function FileConverter({ fromType, toType }) {
 
 	function onButtonPress() {
 		if (file) {
-			let convertFunction = null;
-			if (fromType === "webp" && toType === "jpg") {
-				convertFunction = webpToJpg;
-			}
+			let convertFunction = convertImage;
 
 			if (convertFunction) {
 				convertFunction(file)
@@ -137,11 +134,13 @@ export default function FileConverter({ fromType, toType }) {
 	);
 }
 
-function webpToJpg(file) {
+function convertImage(file: File, toTypeId: string) {
+	const toType = fileTypes[toTypeId] || {};
+
 	return new Promise((resolve, reject) => {
 		if (file) {
 			// Ensure it's a WEBP image
-			if (file.type === "image/webp") {
+			if (file.type.includes("image")) {
 				const reader = new FileReader();
 
 				reader.onload = function (event) {
@@ -157,7 +156,7 @@ function webpToJpg(file) {
 						ctx.drawImage(img, 0, 0);
 
 						// Convert the canvas to a JPG image
-						const jpgUrl = canvas.toDataURL("image/jpeg", 1.0);
+						const jpgUrl = canvas.toDataURL(toType.mimeType, 1.0);
 
 						// Resolve the promise with the JPG URL
 						resolve(jpgUrl);
@@ -172,7 +171,7 @@ function webpToJpg(file) {
 
 				reader.readAsDataURL(file);
 			} else {
-				reject(new Error("Please upload a WEBP image."));
+				reject(new Error("Please upload an image file."));
 			}
 		} else {
 			reject(new Error("Please upload a file."));

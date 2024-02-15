@@ -5,7 +5,7 @@ import FileConverter from "@/components/tools/file-converter";
 
 export function generateMetadata({ params }) {
 	const { slug } = params;
-	
+
 	const fromType = fileTypes[slug.split("-to-")[0]];
 	const toType = fileTypes[slug.split("-to-")[1]];
 
