@@ -98,7 +98,7 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 		return () => {
 			document.removeEventListener("paste", handlePaste);
 		};
-	}, []);
+	}, [handlePaste]);
 
 	return (
 		<div className="flex flex-col gap-3 items-center w-full">

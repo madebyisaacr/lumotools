@@ -24,9 +24,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 				<h1 className="text-5xl font-semibold w-full text-center">
 					404: Page Not Found
 				</h1>
-				<p className="w-full text-center">
-					The page you're looking for does not exist.
-				</p>
+				<p className="w-full text-center">The page you\'re looking for does not exist.</p>
 			</div>
 		);
 	}
