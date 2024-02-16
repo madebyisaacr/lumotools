@@ -202,7 +202,7 @@ function convertImage(file: File, toTypeId: string): Promise<string> {
 
 			img.onerror = () => reject(new Error(notSupportedErrorMessage(file.type)));
 
-			img.src = event.target.result;
+			img.src = event.target.result as string;
 		};
 
 		reader.onerror = reject;

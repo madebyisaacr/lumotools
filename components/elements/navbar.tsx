@@ -16,11 +16,7 @@ import {
 	MenubarTrigger,
 } from "@/components/ui/menubar";
 
-export default function Navbar({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default function Navbar() {
 	const convertersByType = {};
 	for (const converter of fileConverters) {
 		convertersByType[converter.types[0]] =
