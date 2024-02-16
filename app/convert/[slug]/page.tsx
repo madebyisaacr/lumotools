@@ -11,6 +11,7 @@ export function generateMetadata({ params }) {
 
 	return {
 		title: `${fromType.name} to ${toType.name} Converter | Lumotools`,
+		description: `Convert ${fromType.name} ${fromType.titles[1]} to ${toType.name} instantly with this free online tool.`,
 	};
 }
 

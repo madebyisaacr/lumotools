@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: "Lumotools",
-	description: "Lumotools",
+	description: "Free, simple file converters and online utilities. Lumotools helps you convert images, files, and more.",
 };
 
 export default function RootLayout({
