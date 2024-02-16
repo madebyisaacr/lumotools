@@ -45,6 +45,16 @@ export default function Page({ params }: { params: { slug: string } }) {
 				</p>
 			</div>
 			<FileConverter fromType={fromType.id} toType={toType.id} />
+			<div className="flex flex-row gap-4 w-full">
+				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
+					<h2 className="text-xl font-semibold">{fromType.name}</h2>
+					<p>{fromType.description}</p>
+				</div>
+				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
+					<h2 className="text-xl font-semibold">{toType.name}</h2>
+					<p>{toType.description}</p>
+				</div>
+			</div>
 		</div>
 	);
 }

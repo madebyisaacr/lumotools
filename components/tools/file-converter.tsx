@@ -6,6 +6,8 @@ import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const FILE_NAME_WATERMARK = "(Converted by Lumotools.com)";
+
 export default function FileConverter({ fromType, toType }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
@@ -30,7 +32,11 @@ export default function FileConverter({ fromType, toType }) {
 
 						downloadFile(
 							url,
-							`${fileName} (Converted by Lumotools.com).${toType}`
+							`${fileName}${
+								fileName.includes(FILE_NAME_WATERMARK)
+									? ""
+									: " " + FILE_NAME_WATERMARK
+							}.${toType}`
 						);
 					})
 					.catch((error) => {
@@ -42,7 +48,7 @@ export default function FileConverter({ fromType, toType }) {
 
 	function handlePaste(e) {
 		if (!fromFileType.allowClipboard) {
-			return
+			return;
 		}
 
 		// Prevent the default pasting event
@@ -110,7 +116,7 @@ export default function FileConverter({ fromType, toType }) {
 							</span>
 						</>
 					) : (
-						<div className="bg-zinc-200 size-20 flex items-center justify-center border border-zinc-300 rounded-full">
+						<div className="bg-zinc-200/50 size-24 flex items-center justify-center border border-zinc-300 rounded-full">
 							<UploadCloud size={48} strokeWidth={2} />
 						</div>
 					)}
