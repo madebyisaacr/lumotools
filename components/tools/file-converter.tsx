@@ -8,19 +8,29 @@ import { Button } from "@/components/ui/button";
 
 const FILE_NAME_WATERMARK = "(Converted by Lumotools.com)";
 
-export default function FileConverter({ fromType, toType }) {
+export default function FileConverter({ fromTypeId, toTypeId }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
 
-	const fromFileType = fileTypes[fromType] || {};
-	const toFileType = fileTypes[toType] || {};
+	const fromType = fileTypes[fromTypeId] || {};
+	const toType = fileTypes[toTypeId] || {};
 
 	function onButtonPress() {
 		if (file) {
-			let convertFunction = convertImage;
+			let convertFunction = null;
+			switch (fromType.id) {
+				case "jpg":
+				case "jpeg":
+				case "png":
+				case "webp":
+				case "bmp":
+				case "avif":
+					convertFunction = convertImage;
+					break;
+			}
 
 			if (convertFunction) {
-				convertFunction(file)
+				convertFunction(file, toTypeId)
 					.then((url) => {
 						let fileName = file.name;
 						const dotIndex = fileName.lastIndexOf(".");
@@ -36,7 +46,7 @@ export default function FileConverter({ fromType, toType }) {
 								fileName.includes(FILE_NAME_WATERMARK)
 									? ""
 									: " " + FILE_NAME_WATERMARK
-							}.${toType}`
+							}.${toTypeId}`
 						);
 					})
 					.catch((error) => {
@@ -47,7 +57,7 @@ export default function FileConverter({ fromType, toType }) {
 	}
 
 	function handlePaste(e) {
-		if (!fromFileType.allowClipboard) {
+		if (!fromType.allowClipboard) {
 			return;
 		}
 
@@ -96,7 +106,7 @@ export default function FileConverter({ fromType, toType }) {
 				<input
 					type="file"
 					id="image"
-					accept={fromFileType.extensions
+					accept={fromType.extensions
 						.map((item) => "." + item)
 						.join(", ")}
 					ref={fileInputRef}
@@ -122,17 +132,17 @@ export default function FileConverter({ fromType, toType }) {
 					)}
 					<div />
 					<label>
-						Click to upload {fromFileType.name}{" "}
-						{fromFileType.titles[0]}
-						{fromFileType.allowClipboard
-							? `, drag-and-drop, or paste ${fromFileType.titles[0]} from clipboard.`
+						Click to upload {fromType.name}{" "}
+						{fromType.titles[0]}
+						{fromType.allowClipboard
+							? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.`
 							: " or drag-and-drop."}
 					</label>
 				</div>
 				{file ? (
 					<Button className="w-fit z-10" onClick={onButtonPress}>
 						<Download size={16} strokeWidth={3} className="mr-3" />
-						Download as {toFileType.name}
+						Download as {toType.name}
 					</Button>
 				) : null}
 			</div>
@@ -140,48 +150,64 @@ export default function FileConverter({ fromType, toType }) {
 	);
 }
 
-function convertImage(file: File, toTypeId: string) {
-	const toType = fileTypes[toTypeId] || {};
+function convertImage(file: File, toTypeId: string): Promise<string> {
+	const toType = fileTypes[toTypeId];
+
+	if (!toType) {
+		return Promise.reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
+	}
+
+	const dummyCanvas = document.createElement('canvas');
+	try {
+		// Check for result file type support
+		const testDataURL = dummyCanvas.toDataURL(toType.mimeType);
+		if (testDataURL === "data:,") {
+			throw new Error(notSupportedErrorMessage(toType.mimeType, toType.name));
+		}
+	} catch (error) {
+		return Promise.reject(new Error(notSupportedErrorMessage(toType.mimeType, toType.name)));
+	}
 
 	return new Promise((resolve, reject) => {
-		if (file) {
-			// Ensure it's a WEBP image
-			if (file.type.includes("image")) {
-				const reader = new FileReader();
-
-				reader.onload = function (event) {
-					const img = new Image();
-					img.onload = function () {
-						// Create a canvas element to draw the WEBP image
-						const canvas = document.createElement("canvas");
-						canvas.width = img.width;
-						canvas.height = img.height;
-
-						// Draw the image onto the canvas
-						const ctx = canvas.getContext("2d");
-						ctx.drawImage(img, 0, 0);
-
-						// Convert the canvas to a JPG image
-						const jpgUrl = canvas.toDataURL(toType.mimeType, 1.0);
-
-						// Resolve the promise with the JPG URL
-						resolve(jpgUrl);
-					};
-
-					img.onerror = reject; // Handle image loading error
-
-					img.src = event.target.result;
-				};
-
-				reader.onerror = reject; // Handle file reading error
-
-				reader.readAsDataURL(file);
-			} else {
-				reject(new Error("Please upload an image file."));
-			}
-		} else {
-			reject(new Error("Please upload a file."));
+		if (!file) {
+			reject(new Error("No file found. Please upload a file."));
+			return;
 		}
+
+		if (!file.type.includes("image")) {
+			reject(new Error("Please upload an image file."));
+			return;
+		}
+
+		const reader = new FileReader();
+
+		reader.onload = function (event) {
+			const img = new Image();
+			img.onload = function () {
+				const canvas = document.createElement("canvas");
+				canvas.width = img.width;
+				canvas.height = img.height;
+
+				const ctx = canvas.getContext("2d");
+				ctx.drawImage(img, 0, 0);
+
+				try {
+					// Attempt to convert the canvas to the desired file type
+					const dataUrl = canvas.toDataURL(toType.mimeType, 1.0);
+					resolve(dataUrl);
+				} catch (error) {
+					reject(new Error(`Cannot convert to type "${toType.mimeType}".`));
+				}
+			};
+
+			img.onerror = () => reject(new Error(notSupportedErrorMessage(file.type)));
+
+			img.src = event.target.result;
+		};
+
+		reader.onerror = reject;
+
+		reader.readAsDataURL(file);
 	});
 }
 
@@ -192,4 +218,8 @@ function downloadFile(url, fileName) {
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
+}
+
+function notSupportedErrorMessage(mimeType, name = "") {
+	return `File type "${mimeType}"${name.length ? " (" + name + ")" : ""} is not supported by your browser. Please try again with a different browser or device.`
 }
