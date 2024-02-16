@@ -22,7 +22,7 @@ export default function Home() {
 			</div>
 			{Object.keys(convertersByType).map((type, index) => {
 				return (
-					<div className="flex flex-col gap-2">
+					<div key={index} className="flex flex-col gap-2">
 						<h2 className="text-2xl font-semibold w-full">
 							{fileTypes[type].name} Converters
 						</h2>
