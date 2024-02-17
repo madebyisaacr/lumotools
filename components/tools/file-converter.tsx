@@ -161,7 +161,8 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 		fileInput.click();
 
 		fileInput.addEventListener("change", (event) => {
-			const file = event.target.files[0];
+			const target = event.target as HTMLInputElement;
+			const file = target.files[0];
 			if (file) {
 				setFileName(file.name);
 				const reader = new FileReader();

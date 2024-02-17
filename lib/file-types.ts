@@ -172,9 +172,9 @@ for (const converter of fileConverters) {
 	}
 
 	if (types[0] === "jpg") {
-		fileConverters.push({ types: ["jpeg", types[1]] });
+		fileConverters.push({...converter, types: ["jpeg", types[1]] });
 	} else if (types[1] === "jpg") {
-		fileConverters.push({ types: [types[0], "jpeg"] });
+		fileConverters.push({...converter, types: [types[0], "jpeg"] });
 	}
 }
 
