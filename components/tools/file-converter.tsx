@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { json2csv } from "json-2-csv";
+import { json2csv, csv2json } from "json-2-csv";
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
@@ -70,7 +70,6 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 
 			// Loop through the clipboard items
 			for (let i = 0; i < items.length; i++) {
-				console.log(items[i].type, items[i].kind);
 				// Check if the item is an image
 				if (items[i].type.indexOf("image") !== -1) {
 					// Get the image file
@@ -92,12 +91,10 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 	};
 
 	const handleDrop = (e) => {
-		console.log(e)
 		preventDefaults(e);
 
 		let files = e.dataTransfer.files;
 		for (const file of files) {
-			console.log(file)
 			if (file.type == fromType.mimeType) {
 				setFile(file);
 				break;
@@ -208,15 +205,23 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 
 	function convertFile() {
 		const input = inputRef.current?.value || "";
-		try {
-			const json = JSON.parse(input); // Attempt to parse the JSON input
-			setOutput(
-				json2csv(json, {
-					expandNestedObjects: true,
-				})
-			);
-		} catch (error) {
-			setErrorMessage(`Invalid ${fromType.name} input. Please try again with a valid ${fromType.name} input.`);
+
+		let convertFunction = null;
+		switch (`${fromTypeId}-to-${toTypeId}`) {
+			case "json-to-csv":
+				convertFunction = convertJsonToCsv;
+				break;
+			case "csv-to-json":
+				convertFunction = convertCsvToJson;
+				break;
+		}
+
+		if (convertFunction) {
+			try {
+				setOutput(convertFunction(input));
+			} catch (error) {
+				setErrorMessage(`Invalid ${fromType.name} input. Please try again with a valid ${fromType.name} input.`);
+			}
 		}
 	}
 
@@ -280,7 +285,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 						placeholder={`Type ${fromType.name} here, drag-and-drop file, or copy-and-paste...`}
 						onChange={(event) => setOutput("")}
 					/>
-					<div className="absolute bottom-0 left-4 right-4 pb-4 bg-inherit flex flex-row flex-wrap justify-center gap-3">
+					<div className="absolute bottom-4 left-4 right-4 flex flex-row flex-wrap justify-center gap-3">
 						<Button className="flex-1" onClick={uploadFile}>
 							<Upload size={16} strokeWidth={2} className="mr-3" />
 							Upload {fromType.name} File
@@ -293,13 +298,14 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 				<div className="relative flex flex-col gap-5 flex-1 overflow-hidden bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
 					{output.length ? (
 						<>
-							<p className={cn("w-full h-full p-4 pb-20 overflow-auto text-sm", fragmentMono.className)}>{output.trimEnd()}</p>
+							<p className={cn("w-full h-full p-4 pb-20 overflow-auto text-sm whitespace-pre", fragmentMono.className)}>{output}</p>
 							<div className="absolute bottom-0 left-4 right-4 pb-4 flex flex-row flex-wrap justify-center gap-3">
-								<Button className="grow basis-0" onClick={onDownloadClick}>
+								<div className="flex-1 bg-zinc-100">
+								<Button className="w-full" onClick={onDownloadClick}>
 									<Download size={16} strokeWidth={2} className="mr-3" />
 									Download as {toType.name}
-								</Button>
-								<div className="grow basis-0 bg-zinc-100">
+								</Button></div>
+								<div className="flex-1 bg-zinc-100">
 									<Button variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
 										<Copy size={16} strokeWidth={2} className="mr-3" />
 										Copy to Clipboard
@@ -393,6 +399,17 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 	});
 }
 
+function convertJsonToCsv(input) {
+	const json = JSON.parse(input); // Attempt to parse the JSON input
+	return json2csv(json, {
+		expandNestedObjects: true,
+	});
+}
+
+function convertCsvToJson(input) {
+	return JSON.stringify(csv2json(input), null, 2)
+}
+
 function downloadFile(url, fileName) {
 	const a = document.createElement("a");
 	a.href = url;
@@ -420,7 +437,7 @@ function notSupportedErrorMessage(mimeType, name = "") {
 	} is not supported by your browser. Please try again with a different browser or device.`;
 }
 
-const preventDefaults = (e) => {
+function preventDefaults(e) {
 	e.preventDefault();
 	e.stopPropagation();
-};
+}

@@ -148,15 +148,16 @@ export const fileConverters = [
 	{ types: ["jpg", "png"], component: "file" },
 	{ types: ["png", "webp"], component: "file" },
 	{ types: ["png", "jpg"], component: "file" },
+	{ types: ["avif", "webp"], component: "file" },
+	{ types: ["avif", "jpg"], component: "file" },
+	{ types: ["avif", "png"], component: "file" },
 	{ types: ["bmp", "webp"], component: "file" },
 	{ types: ["bmp", "jpg"], component: "file" },
 	{ types: ["bmp", "png"], component: "file" },
 	{ types: ["jpeg", "jpg"], component: "file" },
 	{ types: ["jpg", "jpeg"], component: "file" },
-	{ types: ["avif", "webp"], component: "file" },
-	{ types: ["avif", "jpg"], component: "file" },
-	{ types: ["avif", "png"], component: "file" },
 	{ types: ["json", "csv"], component: "text" },
+	{ types: ["csv", "json"], component: "text" },
 ];
 
 // Add jpeg duplicates to converters with jpg
@@ -178,6 +179,11 @@ for (const converter of fileConverters) {
 	}
 }
 
-export const fileConverterSlugs = fileConverters.map(
-	({ types }) => `${types[0]}-to-${types[1]}`
-);
+export const fileConverterSlugs = []
+
+for (const converter of fileConverters) {
+	const slug = `${converter.types[0]}-to-${converter.types[1]}`
+	converter.slug = slug
+	fileConverterSlugs.push(slug)
+}
+
