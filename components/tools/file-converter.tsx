@@ -9,8 +9,6 @@ import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const FILE_NAME_WATERMARK = "(Converted by Lumotools.com)";
-
 export function FileConverter({ fromTypeId, toTypeId }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
@@ -93,30 +91,56 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 		}
 	};
 
+	const handleDrop = (e) => {
+		console.log(e)
+		preventDefaults(e);
+
+		let files = e.dataTransfer.files;
+		for (const file of files) {
+			console.log(file)
+			if (file.type == fromType.mimeType) {
+				setFile(file);
+				break;
+			}
+		}
+	};
+
 	useEffect(() => {
+		document.addEventListener("dragenter", preventDefaults, false);
+		document.addEventListener("dragover", preventDefaults, false);
+		document.addEventListener("dragleave", preventDefaults, false);
+		document.addEventListener("drop", handleDrop, false);
 		document.addEventListener("paste", handlePaste);
 
 		return () => {
+			document.removeEventListener("dragenter", preventDefaults, false);
+			document.removeEventListener("dragover", preventDefaults, false);
+			document.removeEventListener("dragleave", preventDefaults, false);
+			document.removeEventListener("drop", handleDrop, false);
 			document.removeEventListener("paste", handlePaste);
 		};
 	}, [handlePaste]);
 
 	return (
 		<div className="flex flex-col gap-3 items-center w-full max-w-5xl">
-			<div className="relative flex flex-col items-center justify-center gap-3 w-full h-96 p-4 bg-zinc-50 rounded-lg border-2 border-dashed border-zinc-300 cursor-pointer">
+			<div
+				className={`${
+					file ? "border-zinc-300" : "border-primary"
+				} relative flex flex-col items-center justify-center gap-3 w-full h-96 p-4 bg-zinc-50 rounded-lg border-2 border-dashed cursor-pointer`}
+			>
 				<input
+					ref={fileInputRef}
 					type="file"
 					id="image"
 					accept={fromType.extensions.map((item) => "." + item).join(", ")}
-					ref={fileInputRef}
 					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 					onChange={handleFileChange}
 				/>
-				<div className="flex flex-col gap-3 flex-1 items-center justify-center">
+				<div className="flex flex-col gap-3 w-full flex-1 items-center justify-center">
 					{file ? (
 						<>
 							<img src={URL.createObjectURL(file)} alt={file.name} className="h-36 object-cover rounded-md" />
-							<span className="w-full text-center truncate text-lg font-semibold">{file.name}</span>
+							<span className="w-full text-center text-lg font-semibold">{file.name}</span>
 						</>
 					) : (
 						<div className="bg-primary size-24 flex items-center justify-center rounded-full">
@@ -149,10 +173,15 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 export function TextConverter({ fromTypeId, toTypeId }) {
 	const [output, setOutput] = useState("");
 	const [fileName, setFileName] = useState("");
+	const [errorMessage, setErrorMessage] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const fromType = fileTypes[fromTypeId] || {};
 	const toType = fileTypes[toTypeId] || {};
+
+	function invalidateOutput() {
+		setOutput("");
+	}
 
 	function uploadFile() {
 		const fileInput = document.createElement("input");
@@ -169,6 +198,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 				reader.onload = (event) => {
 					if (inputRef.current) {
 						inputRef.current.value = event.target.result as string;
+						invalidateOutput();
 					}
 				};
 				reader.readAsText(file);
@@ -178,12 +208,16 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 
 	function convertFile() {
 		const input = inputRef.current?.value || "";
-		const json = JSON.parse(input);
-		setOutput(
-			json2csv(json, {
-				expandNestedObjects: true,
-			})
-		);
+		try {
+			const json = JSON.parse(input); // Attempt to parse the JSON input
+			setOutput(
+				json2csv(json, {
+					expandNestedObjects: true,
+				})
+			);
+		} catch (error) {
+			setErrorMessage(`Invalid ${fromType.name} input. Please try again with a valid ${fromType.name} input.`);
+		}
 	}
 
 	function onDownloadClick() {
@@ -195,6 +229,42 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function copyOutputToClipboard() {
 		navigator.clipboard.writeText(output);
 	}
+
+	// Handle file drop
+	const handleDrop = (e) => {
+		preventDefaults(e);
+
+		let files = e.dataTransfer.files;
+		for (const file of files) {
+			if (file.type == fromType.mimeType) {
+				setFileName(file.name);
+
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					if (inputRef.current) {
+						inputRef.current.value = event.target.result as string;
+						invalidateOutput();
+					}
+				};
+				reader.readAsText(file);
+				break;
+			}
+		}
+	};
+
+	useEffect(() => {
+		document.addEventListener("dragenter", preventDefaults, false);
+		document.addEventListener("dragover", preventDefaults, false);
+		document.addEventListener("dragleave", preventDefaults, false);
+		document.addEventListener("drop", handleDrop, false);
+
+		return () => {
+			document.removeEventListener("dragenter", preventDefaults, false);
+			document.removeEventListener("dragover", preventDefaults, false);
+			document.removeEventListener("dragleave", preventDefaults, false);
+			document.removeEventListener("drop", handleDrop, false);
+		};
+	}, []);
 
 	return (
 		<div className="flex flex-row w-full gap-4 h-[550px]">
@@ -238,11 +308,12 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 							</div>
 						</>
 					) : (
-						<div className="w-full h-full flex items-center justify-center">
+						<div className="w-full h-full flex flex-col gap-4 p-4 items-center justify-center">
 							<Button className="w-fit" onClick={convertFile}>
 								<Wand2 size={16} strokeWidth={2} className="mr-3" />
 								Convert to {toType.name}
 							</Button>
+							{errorMessage.length != 0 && <p className="text-red-600 w-full text-center">{errorMessage}</p>}
 						</div>
 					)}
 				</div>
@@ -333,14 +404,14 @@ function downloadFile(url, fileName) {
 
 function generateFileName(name, extension) {
 	let fileName = name;
-	
+
 	// Check if the file name has an extension and does not start with a dot
 	const dotIndex = fileName.lastIndexOf(".");
 	if (dotIndex > 0) {
 		fileName = fileName.substring(0, dotIndex); // Remove the extension
 	}
 
-	return `${fileName}${fileName.includes(FILE_NAME_WATERMARK) ? "" : " " + FILE_NAME_WATERMARK}.${extension}`;
+	return `${fileName}.${extension}`;
 }
 
 function notSupportedErrorMessage(mimeType, name = "") {
@@ -348,3 +419,8 @@ function notSupportedErrorMessage(mimeType, name = "") {
 		name.length ? " (" + name + ")" : ""
 	} is not supported by your browser. Please try again with a different browser or device.`;
 }
+
+const preventDefaults = (e) => {
+	e.preventDefault();
+	e.stopPropagation();
+};
