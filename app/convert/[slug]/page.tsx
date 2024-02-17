@@ -21,9 +21,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 	if (!fileConverterSlugs.includes(slug)) {
 		return (
 			<div className="w-full flex flex-col gap-12 items-center">
-				<h1 className="text-5xl font-semibold w-full text-center">
-					404: Page Not Found
-				</h1>
+				<h1 className="text-5xl font-semibold w-full text-center">404: Page Not Found</h1>
 				<p className="w-full text-center">The page you&apos;re looking for does not exist.</p>
 			</div>
 		);
@@ -39,8 +37,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 					Free {fromType.name} to {toType.name} Converter
 				</h1>
 				<p className="w-full text-center">
-					Convert {fromType.name} {fromType.titles[1]} to{" "}
-					{toType.name} instantly with this free online tool.
+					Convert {fromType.name} {fromType.titles[1]} to {toType.name} instantly with this free online tool.
 				</p>
 			</div>
 			<FileConverter fromTypeId={fromType.id} toTypeId={toType.id} />

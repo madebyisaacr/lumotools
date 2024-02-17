@@ -1,10 +1,12 @@
-import Image from "next/image";
-
 import { fileTypes, fileConverters } from "@/lib/file-types";
 
 export default function Home() {
 	const convertersByType = {};
 	for (const converter of fileConverters) {
+		if (converter.types.includes("jpeg")) {
+			continue
+		}
+
 		convertersByType[converter.types[0]] =
 			convertersByType[converter.types[0]] || [];
 		convertersByType[converter.types[0]].push(converter);
@@ -30,7 +32,7 @@ export default function Home() {
               {fileTypes[type].description}
 						</p>
             <div className="h-2" />
-						<div className="grid grid-cols-4 gap-4">
+						<div className="grid grid-cols-3 gap-4">
 							{convertersByType[type].map((converter, index) => {
 								const fromType = fileTypes[converter.types[0]];
 								const toType = fileTypes[converter.types[1]];

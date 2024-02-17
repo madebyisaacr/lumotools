@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 
 import { fileTypes } from "@/lib/file-types";
-import { UploadCloud, Download } from "lucide-react";
+import { UploadCloud, Download, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FILE_NAME_WATERMARK = "(Converted by Lumotools.com)";
@@ -15,23 +15,32 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 	const fromType = fileTypes[fromTypeId] || {};
 	const toType = fileTypes[toTypeId] || {};
 
-	function onButtonPress() {
+	function convertAndSaveFile(toClipboard) {
 		if (file) {
 			let convertFunction = null;
-			switch (fromType.id) {
-				case "jpg":
-				case "jpeg":
-				case "png":
-				case "webp":
-				case "bmp":
-				case "avif":
-					convertFunction = convertImage;
-					break;
+
+			if ((fromType.id == "jpg" && toType.id == "jpeg") || (fromType.id == "jpeg" && toType.id == "jpg")) {
+				convertFunction = (file, toTypeId) => {
+					return new Promise((resolve, reject) => {
+						resolve(URL.createObjectURL(file));
+					});
+				};
+			} else {
+				switch (fromType.id) {
+					case "jpg":
+					case "jpeg":
+					case "png":
+					case "webp":
+					case "bmp":
+					case "avif":
+						convertFunction = convertImage;
+						break;
+				}
 			}
 
 			if (convertFunction) {
-				convertFunction(file, toTypeId)
-					.then((url) => {
+				convertFunction(file, toTypeId, toClipboard)
+					.then((result) => {
 						let fileName = file.name;
 						const dotIndex = fileName.lastIndexOf(".");
 
@@ -40,14 +49,14 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 							fileName = fileName.substring(0, dotIndex); // Remove the extension
 						}
 
-						downloadFile(
-							url,
-							`${fileName}${
-								fileName.includes(FILE_NAME_WATERMARK)
-									? ""
-									: " " + FILE_NAME_WATERMARK
-							}.${toTypeId}`
-						);
+						const newFileName = `${fileName}${
+							fileName.includes(FILE_NAME_WATERMARK) ? "" : " " + FILE_NAME_WATERMARK
+						}.${toTypeId}`;
+						if (toClipboard) {
+							navigator.clipboard.write([new window.ClipboardItem({ [toType.mimeType]: result })])
+						} else {
+							downloadFile(result, newFileName);
+						}
 					})
 					.catch((error) => {
 						alert(error.message);
@@ -106,9 +115,7 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 				<input
 					type="file"
 					id="image"
-					accept={fromType.extensions
-						.map((item) => "." + item)
-						.join(", ")}
+					accept={fromType.extensions.map((item) => "." + item).join(", ")}
 					ref={fileInputRef}
 					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 					onChange={handleFileChange}
@@ -116,14 +123,8 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 				<div className="flex flex-col gap-3 flex-1 items-center justify-center">
 					{file ? (
 						<>
-							<img
-								src={URL.createObjectURL(file)}
-								alt={file.name}
-								className="h-36 object-cover rounded-md"
-							/>
-							<span className="w-full text-center truncate text-lg font-semibold">
-								{file.name}
-							</span>
+							<img src={URL.createObjectURL(file)} alt={file.name} className="h-36 object-cover rounded-md" />
+							<span className="w-full text-center truncate text-lg font-semibold">{file.name}</span>
 						</>
 					) : (
 						<div className="bg-zinc-200/50 size-24 flex items-center justify-center border border-zinc-300 rounded-full">
@@ -132,32 +133,35 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 					)}
 					<div />
 					<label>
-						Click to upload {fromType.name}{" "}
-						{fromType.titles[0]}
-						{fromType.allowClipboard
-							? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.`
-							: " or drag-and-drop."}
+						Click to upload {fromType.name} {fromType.titles[0]}
+						{fromType.allowClipboard ? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.` : " or drag-and-drop."}
 					</label>
 				</div>
 				{file ? (
-					<Button className="w-fit z-10" onClick={onButtonPress}>
-						<Download size={16} strokeWidth={3} className="mr-3" />
-						Download as {toType.name}
-					</Button>
+					<div className="w-full flex flex-row flex-wrap justify-center gap-3">
+						<Button className="w-fit z-10" onClick={() => convertAndSaveFile(false)}>
+							<Download size={16} strokeWidth={2} className="mr-3" />
+							Download as {toType.name}
+						</Button>
+						<Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
+							<Copy size={16} strokeWidth={2} className="mr-3" />
+							Copy to Clipboard as {toType.name}
+						</Button>
+					</div>
 				) : null}
 			</div>
 		</div>
 	);
 }
 
-function convertImage(file: File, toTypeId: string): Promise<string> {
+function convertImage(file: File, toTypeId: string, returnBlob = false): Promise<string | Blob> {
 	const toType = fileTypes[toTypeId];
 
 	if (!toType) {
 		return Promise.reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
 	}
 
-	const dummyCanvas = document.createElement('canvas');
+	const dummyCanvas = document.createElement("canvas");
 	try {
 		// Check for result file type support
 		const testDataURL = dummyCanvas.toDataURL(toType.mimeType);
@@ -192,9 +196,15 @@ function convertImage(file: File, toTypeId: string): Promise<string> {
 				ctx.drawImage(img, 0, 0);
 
 				try {
-					// Attempt to convert the canvas to the desired file type
-					const dataUrl = canvas.toDataURL(toType.mimeType, 1.0);
-					resolve(dataUrl);
+					if (returnBlob) {
+						canvas.toBlob((blob) => {
+							resolve(blob);
+						}, toType.mimeType, 1.0);
+					} else {
+						// Attempt to convert the canvas to the desired file type
+						const dataUrl = canvas.toDataURL(toType.mimeType, 1.0);
+						resolve(dataUrl);
+					}
 				} catch (error) {
 					reject(new Error(`Cannot convert to type "${toType.mimeType}".`));
 				}
@@ -221,5 +231,7 @@ function downloadFile(url, fileName) {
 }
 
 function notSupportedErrorMessage(mimeType, name = "") {
-	return `File type "${mimeType}"${name.length ? " (" + name + ")" : ""} is not supported by your browser. Please try again with a different browser or device.`
+	return `File type "${mimeType}"${
+		name.length ? " (" + name + ")" : ""
+	} is not supported by your browser. Please try again with a different browser or device.`;
 }

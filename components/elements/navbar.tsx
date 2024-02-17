@@ -19,6 +19,10 @@ import {
 export default function Navbar() {
 	const convertersByType = {};
 	for (const converter of fileConverters) {
+		if (converter.types.includes("jpeg")) {
+			continue
+		}
+
 		convertersByType[converter.types[0]] =
 			convertersByType[converter.types[0]] || [];
 		convertersByType[converter.types[0]].push(converter);
