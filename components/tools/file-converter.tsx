@@ -1,14 +1,17 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { json2csv } from "json-2-csv";
 
+import { cn } from "@/lib/utils";
+import { fragmentMono } from "@/lib/fonts";
 import { fileTypes } from "@/lib/file-types";
-import { UploadCloud, Download, Copy } from "lucide-react";
+import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FILE_NAME_WATERMARK = "(Converted by Lumotools.com)";
 
-export default function FileConverter({ fromTypeId, toTypeId }) {
+export function FileConverter({ fromTypeId, toTypeId }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
 
@@ -41,21 +44,10 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 			if (convertFunction) {
 				convertFunction(file, toTypeId, toClipboard)
 					.then((result) => {
-						let fileName = file.name;
-						const dotIndex = fileName.lastIndexOf(".");
-
-						// Check if the file name has an extension and does not start with a dot
-						if (dotIndex > 0) {
-							fileName = fileName.substring(0, dotIndex); // Remove the extension
-						}
-
-						const newFileName = `${fileName}${
-							fileName.includes(FILE_NAME_WATERMARK) ? "" : " " + FILE_NAME_WATERMARK
-						}.${toTypeId}`;
 						if (toClipboard) {
-							navigator.clipboard.write([new window.ClipboardItem({ [toType.mimeType]: result })])
+							navigator.clipboard.write([new window.ClipboardItem({ [toType.mimeType]: result })]);
 						} else {
-							downloadFile(result, newFileName);
+							downloadFile(result, generateFileName(file.name, toType.resultExtension));
 						}
 					})
 					.catch((error) => {
@@ -110,7 +102,7 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 	}, [handlePaste]);
 
 	return (
-		<div className="flex flex-col gap-3 items-center w-full">
+		<div className="flex flex-col gap-3 items-center w-full max-w-5xl">
 			<div className="relative flex flex-col items-center justify-center gap-3 w-full h-96 p-4 bg-zinc-50 rounded-lg border-2 border-dashed border-zinc-300 cursor-pointer">
 				<input
 					type="file"
@@ -127,8 +119,8 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 							<span className="w-full text-center truncate text-lg font-semibold">{file.name}</span>
 						</>
 					) : (
-						<div className="bg-zinc-200/50 size-24 flex items-center justify-center border border-zinc-300 rounded-full">
-							<UploadCloud size={48} strokeWidth={2} />
+						<div className="bg-primary size-24 flex items-center justify-center rounded-full">
+							<UploadCloud size={48} strokeWidth={2} color="white" />
 						</div>
 					)}
 					<div />
@@ -149,6 +141,110 @@ export default function FileConverter({ fromTypeId, toTypeId }) {
 						</Button>
 					</div>
 				) : null}
+			</div>
+		</div>
+	);
+}
+
+export function TextConverter({ fromTypeId, toTypeId }) {
+	const [output, setOutput] = useState("");
+	const [fileName, setFileName] = useState("");
+	const inputRef = useRef<HTMLTextAreaElement>(null);
+
+	const fromType = fileTypes[fromTypeId] || {};
+	const toType = fileTypes[toTypeId] || {};
+
+	function uploadFile() {
+		const fileInput = document.createElement("input");
+		fileInput.type = "file";
+		fileInput.accept = fromType.extensions.map((item) => "." + item).join(", ");
+		fileInput.click();
+
+		fileInput.addEventListener("change", (event) => {
+			const file = event.target.files[0];
+			if (file) {
+				setFileName(file.name);
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					if (inputRef.current) {
+						inputRef.current.value = event.target.result as string;
+					}
+				};
+				reader.readAsText(file);
+			}
+		});
+	}
+
+	function convertFile() {
+		const input = inputRef.current?.value || "";
+		const json = JSON.parse(input);
+		setOutput(
+			json2csv(json, {
+				expandNestedObjects: true,
+			})
+		);
+	}
+
+	function onDownloadClick() {
+		const blob = new Blob([output], { type: toType.mimeType });
+		const url = URL.createObjectURL(blob);
+		downloadFile(url, generateFileName(fileName, toType.resultExtension));
+	}
+
+	function copyOutputToClipboard() {
+		navigator.clipboard.writeText(output);
+	}
+
+	return (
+		<div className="flex flex-row w-full gap-4 h-[550px]">
+			<div className="flex flex-col flex-1">
+				<div className="flex flex-row gap-3 justify-between items-center px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">
+					<span className="font-semibold">{fromType.name} Input</span>
+					{fileName.length != 0 && <span className="flex-1 text-ellipsis text-right text-sm opacity-60">{fileName}</span>}
+				</div>
+				<div className="relative flex flex-col flex-1 bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
+					<textarea
+						ref={inputRef}
+						className={cn("flex-1 p-4 pb-20 bg-transparent resize-none text-sm", fragmentMono.className)}
+						placeholder={`Type ${fromType.name} here, drag-and-drop file, or copy-and-paste...`}
+						onChange={(event) => setOutput("")}
+					/>
+					<div className="absolute bottom-0 left-4 right-4 pb-4 bg-inherit flex flex-row flex-wrap justify-center gap-3">
+						<Button className="flex-1" onClick={uploadFile}>
+							<Upload size={16} strokeWidth={2} className="mr-3" />
+							Upload {fromType.name} File
+						</Button>
+					</div>
+				</div>
+			</div>
+			<div className="flex flex-col flex-1 overflow-auto">
+				<h2 className="font-semibold px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">{toType.name} Output</h2>
+				<div className="relative flex flex-col gap-5 flex-1 overflow-hidden bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
+					{output.length ? (
+						<>
+							<p className={cn("w-full h-full p-4 pb-20 overflow-auto text-sm", fragmentMono.className)}>{output.trimEnd()}</p>
+							<div className="absolute bottom-0 left-4 right-4 pb-4 flex flex-row flex-wrap justify-center gap-3">
+								<Button className="grow basis-0" onClick={onDownloadClick}>
+									<Download size={16} strokeWidth={2} className="mr-3" />
+									Download as {toType.name}
+								</Button>
+								<div className="grow basis-0 bg-zinc-100">
+									<Button variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
+										<Copy size={16} strokeWidth={2} className="mr-3" />
+										Copy to Clipboard
+									</Button>
+								</div>
+							</div>
+						</>
+					) : (
+						<div className="w-full h-full flex items-center justify-center">
+							<Button className="w-fit" onClick={convertFile}>
+								<Wand2 size={16} strokeWidth={2} className="mr-3" />
+								Convert to {toType.name}
+							</Button>
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
@@ -197,9 +293,13 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 
 				try {
 					if (returnBlob) {
-						canvas.toBlob((blob) => {
-							resolve(blob);
-						}, toType.mimeType, 1.0);
+						canvas.toBlob(
+							(blob) => {
+								resolve(blob);
+							},
+							toType.mimeType,
+							1.0
+						);
 					} else {
 						// Attempt to convert the canvas to the desired file type
 						const dataUrl = canvas.toDataURL(toType.mimeType, 1.0);
@@ -228,6 +328,18 @@ function downloadFile(url, fileName) {
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
+}
+
+function generateFileName(name, extension) {
+	let fileName = name;
+	
+	// Check if the file name has an extension and does not start with a dot
+	const dotIndex = fileName.lastIndexOf(".");
+	if (dotIndex > 0) {
+		fileName = fileName.substring(0, dotIndex); // Remove the extension
+	}
+
+	return `${fileName}${fileName.includes(FILE_NAME_WATERMARK) ? "" : " " + FILE_NAME_WATERMARK}.${extension}`;
 }
 
 function notSupportedErrorMessage(mimeType, name = "") {

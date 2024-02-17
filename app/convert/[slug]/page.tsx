@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 
-import { fileTypes, fileConverterSlugs } from "@/lib/file-types";
-import FileConverter from "@/components/tools/file-converter";
+import { fileTypes, fileConverters, fileConverterSlugs } from "@/lib/file-types";
+import {FileConverter, TextConverter} from "@/components/tools/file-converter";
+
+const CONVERTER_COMPONENTS = {
+	file: FileConverter,
+	text: TextConverter,
+};
 
 export function generateMetadata({ params }) {
 	const { slug } = params;
@@ -30,6 +35,9 @@ export default function Page({ params }: { params: { slug: string } }) {
 	const fromType = fileTypes[slug.split("-to-")[0]];
 	const toType = fileTypes[slug.split("-to-")[1]];
 
+	const converter = fileConverters[fileConverterSlugs.indexOf(slug)];
+	const ConverterComponent = CONVERTER_COMPONENTS[converter.component];
+
 	return (
 		<div className="w-full flex flex-col gap-12 items-center">
 			<div className="flex flex-col gap-4 items-center w-full">
@@ -40,8 +48,8 @@ export default function Page({ params }: { params: { slug: string } }) {
 					Convert {fromType.name} {fromType.titles[1]} to {toType.name} instantly with this free online tool.
 				</p>
 			</div>
-			<FileConverter fromTypeId={fromType.id} toTypeId={toType.id} />
-			<div className="flex flex-row gap-4 w-full">
+			<ConverterComponent fromTypeId={fromType.id} toTypeId={toType.id} />
+			<div className="flex flex-row gap-4 w-full max-w-5xl">
 				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
 					<h2 className="text-xl font-semibold">{fromType.name}</h2>
 					<p>{fromType.description}</p>

@@ -135,27 +135,28 @@ for (const typeId in fileTypes) {
 	const type = fileTypes[typeId];
 
 	type.id = typeId;
-	type.resultExtension = type.resultExtension || type;
+	type.resultExtension = type.resultExtension || typeId;
 	if (type.allowClipboard === undefined) {
 		type.allowClipboard = true;
 	}
 }
 
 export const fileConverters = [
-	{ types: ["webp", "jpg"] },
-	{ types: ["webp", "png"] },
-	{ types: ["jpg", "webp"] },
-	{ types: ["jpg", "png"] },
-	{ types: ["png", "webp"] },
-	{ types: ["png", "jpg"] },
-	{ types: ["bmp", "webp"] },
-	{ types: ["bmp", "jpg"] },
-	{ types: ["bmp", "png"] },
-	{ types: ["jpeg", "jpg"] },
-	{ types: ["jpg", "jpeg"] },
-	{ types: ["avif", "webp"] },
-	{ types: ["avif", "jpg"] },
-	{ types: ["avif", "png"] },
+	{ types: ["webp", "jpg"], component: "file" },
+	{ types: ["webp", "png"], component: "file" },
+	{ types: ["jpg", "webp"], component: "file" },
+	{ types: ["jpg", "png"], component: "file" },
+	{ types: ["png", "webp"], component: "file" },
+	{ types: ["png", "jpg"], component: "file" },
+	{ types: ["bmp", "webp"], component: "file" },
+	{ types: ["bmp", "jpg"], component: "file" },
+	{ types: ["bmp", "png"], component: "file" },
+	{ types: ["jpeg", "jpg"], component: "file" },
+	{ types: ["jpg", "jpeg"], component: "file" },
+	{ types: ["avif", "webp"], component: "file" },
+	{ types: ["avif", "jpg"], component: "file" },
+	{ types: ["avif", "png"], component: "file" },
+	{ types: ["json", "csv"], component: "text" },
 ];
 
 // Add jpeg duplicates to converters with jpg
