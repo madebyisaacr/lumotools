@@ -11,11 +11,12 @@ import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FILE_CONVERTER_FUNCTIONS = {
-	"json-to-csv": convertJsonToCsv,
-	"csv-to-json": convertCsvToJson,
-	"json-to-yaml": convertJsonToYaml,
-	"yaml-to-json": convertYamlToJson,
-}
+	"json-to-csv": convertJSONtoCSV,
+	"csv-to-json": convertCSVtoJSON,
+	"json-to-yaml": convertJSONtoYAML,
+	"yaml-to-json": convertYAMLtoJSON,
+	"rtf-to-txt": convertRTFtoTXT,
+};
 
 export function FileConverter({ fromTypeId, toTypeId }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -297,13 +298,16 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 				<div className="relative flex flex-col gap-5 flex-1 overflow-hidden bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
 					{output.length ? (
 						<>
-							<p className={cn("w-full h-full p-4 pb-20 overflow-auto text-sm whitespace-pre", fragmentMono.className)}>{output}</p>
+							<p className={cn("w-full h-full p-4 pb-20 overflow-auto text-sm whitespace-pre", fragmentMono.className)}>
+								{output}
+							</p>
 							<div className="absolute bottom-0 left-4 right-4 pb-4 flex flex-row flex-wrap justify-center gap-3">
 								<div className="flex-1 bg-zinc-100">
-								<Button className="w-full" onClick={onDownloadClick}>
-									<Download size={16} strokeWidth={2} className="mr-3" />
-									Download as {toType.name}
-								</Button></div>
+									<Button className="w-full" onClick={onDownloadClick}>
+										<Download size={16} strokeWidth={2} className="mr-3" />
+										Download as {toType.name}
+									</Button>
+								</div>
 								<div className="flex-1 bg-zinc-100">
 									<Button variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
 										<Copy size={16} strokeWidth={2} className="mr-3" />
@@ -398,23 +402,29 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 	});
 }
 
-function convertJsonToCsv(input) {
+function convertJSONtoCSV(input) {
 	const json = JSON.parse(input); // Attempt to parse the JSON input
 	return json2csv(json, {
 		expandNestedObjects: true,
 	});
 }
 
-function convertCsvToJson(input) {
-	return JSON.stringify(csv2json(input), null, 2)
+function convertCSVtoJSON(input) {
+	return JSON.stringify(csv2json(input), null, 2);
 }
 
-function convertJsonToYaml(input) {
-	return YAML.stringify(JSON.parse(input))
+function convertJSONtoYAML(input) {
+	return YAML.stringify(JSON.parse(input));
 }
 
-function convertYamlToJson(input) {
-	return JSON.stringify(YAML.parse(input), null, 2)
+function convertYAMLtoJSON(input) {
+	return JSON.stringify(YAML.parse(input), null, 2);
+}
+
+function convertRTFtoTXT(input) {
+	let rtf = input.replace(/\\par[d]?/g, "");
+	rtf = rtf.replace(/\{\*?\\[^{}]+}|[{}]|\\\n?[A-Za-z]+\n?(?:-?\d+)?[ ]?/g, "");
+	return rtf.replace(/\\'[0-9a-zA-Z]{2}/g, "").trim();
 }
 
 function downloadFile(url, fileName) {

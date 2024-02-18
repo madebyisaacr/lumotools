@@ -51,8 +51,7 @@ export const fileTypes = {
 		extensions: ["csv"],
 		titles: TITLES.file,
 		mimeType: "text/csv",
-		description:
-			"CSV files are plain text files that use commas to separate values, often used for storing tabular data.",
+		description: "CSV files are plain text files that use commas to separate values, often used for storing tabular data.",
 	},
 	markdown: {
 		name: "Markdown",
@@ -95,14 +94,6 @@ export const fileTypes = {
 		description:
 			"PSD files are proprietary layered image files used by Adobe Photoshop, designed to support a wide range of imaging options within a single file.",
 	},
-	mp3: {
-		name: "MP3",
-		extensions: ["mp3"],
-		titles: TITLES.audio,
-		mimeType: "audio/mpeg",
-		description:
-			"MP3 files are a type of digital audio file that uses a form of lossy data compression to reduce file size while retaining a sound quality that is close to the original recording.",
-	},
 	bmp: {
 		name: "BMP",
 		extensions: ["bmp"],
@@ -127,6 +118,54 @@ export const fileTypes = {
 		mimeType: "application/pdf",
 		description:
 			"PDF files are a universal file type designed for sharing documents that maintain their formatting regardless of the software, hardware, or operating system used to view them.",
+	},
+	rtf: {
+		name: "RTF",
+		extensions: ["rtf"],
+		titles: TITLES.file,
+		mimeType: "application/rtf",
+		description:
+			"RTF files, or Rich Text Format documents, are text files that include formatting such as fonts, styles, and colors, compatible across different word processing programs.",
+	},
+	txt: {
+		name: "TXT",
+		extensions: ["txt"],
+		titles: TITLES.file,
+		mimeType: "text/plain",
+		description:
+			"TXT files are plain text documents that contain unformatted text, readable by various text editors and word processing software without specialized formatting.",
+	},
+	mp3: {
+		name: "MP3",
+		extensions: ["mp3"],
+		titles: TITLES.audio,
+		mimeType: "audio/mpeg",
+		description:
+			"MP3 files are a type of digital audio file that uses a form of lossy data compression to reduce file size while retaining a sound quality that is close to the original recording.",
+	},
+	ogg: {
+		name: "OGG",
+		extensions: ["ogg"],
+		titles: TITLES.audio,
+		mimeType: "audio/ogg",
+		description:
+			"OGG is a free, open container format that supports efficient streaming and manipulation of high quality digital multimedia, including but not limited to audio files.",
+	},
+	wav: {
+		name: "WAV",
+		extensions: ["wav"],
+		titles: TITLES.audio,
+		mimeType: "audio/wav",
+		description:
+			"WAV audio files are a digital audio format standard for storing waveform data, allowing high-quality, uncompressed sound recordings.",
+	},
+	aac: {
+		name: "AAC",
+		extensions: ["aac"],
+		titles: TITLES.audio,
+		mimeType: "audio/aac",
+		description:
+			"AAC (Advanced Audio Coding) is a digital audio compression format that provides high-quality audio at lower bitrates than MP3, making it efficient for streaming and storage.",
 	},
 };
 
@@ -160,6 +199,7 @@ export const fileConverters = [
 	{ types: ["csv", "json"], component: "text" },
 	{ types: ["json", "yaml"], component: "text" },
 	{ types: ["yaml", "json"], component: "text" },
+	{ types: ["rtf", "txt"], component: "text" },
 ];
 
 // Add jpeg duplicates to converters with jpg
@@ -167,22 +207,19 @@ for (const converter of fileConverters) {
 	const { types } = converter;
 
 	// Skip if both types are jpg or jpeg
-	if (
-		(types[0] == "jpg" || types[0] == "jpeg") &&
-		(types[1] == "jpg" || types[1] == "jpeg")
-	) {
+	if ((types[0] == "jpg" || types[0] == "jpeg") && (types[1] == "jpg" || types[1] == "jpeg")) {
 		continue;
 	}
 
 	if (types[0] === "jpg") {
-		fileConverters.push({...converter, types: ["jpeg", types[1]] });
+		fileConverters.push({ ...converter, types: ["jpeg", types[1]] });
 	} else if (types[1] === "jpg") {
-		fileConverters.push({...converter, types: [types[0], "jpeg"] });
+		fileConverters.push({ ...converter, types: [types[0], "jpeg"] });
 	}
 }
 
-export const fileConverterSlugs = []
+export const fileConverterSlugs = [];
 
 for (const converter of fileConverters) {
-	fileConverterSlugs.push(`${converter.types[0]}-to-${converter.types[1]}`)
+	fileConverterSlugs.push(`${converter.types[0]}-to-${converter.types[1]}`);
 }
