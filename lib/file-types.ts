@@ -158,6 +158,8 @@ export const fileConverters = [
 	{ types: ["jpg", "jpeg"], component: "file" },
 	{ types: ["json", "csv"], component: "text" },
 	{ types: ["csv", "json"], component: "text" },
+	{ types: ["json", "yaml"], component: "text" },
+	{ types: ["yaml", "json"], component: "text" },
 ];
 
 // Add jpeg duplicates to converters with jpg
@@ -184,4 +186,3 @@ export const fileConverterSlugs = []
 for (const converter of fileConverters) {
 	fileConverterSlugs.push(`${converter.types[0]}-to-${converter.types[1]}`)
 }
-

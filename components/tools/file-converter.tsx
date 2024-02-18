@@ -2,12 +2,20 @@
 
 import { useRef, useState, useEffect } from "react";
 import { json2csv, csv2json } from "json-2-csv";
+import YAML from "yaml";
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
 import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const FILE_CONVERTER_FUNCTIONS = {
+	"json-to-csv": convertJsonToCsv,
+	"csv-to-json": convertCsvToJson,
+	"json-to-yaml": convertJsonToYaml,
+	"yaml-to-json": convertYamlToJson,
+}
 
 export function FileConverter({ fromTypeId, toTypeId }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -206,16 +214,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function convertFile() {
 		const input = inputRef.current?.value || "";
 
-		let convertFunction = null;
-		switch (`${fromTypeId}-to-${toTypeId}`) {
-			case "json-to-csv":
-				convertFunction = convertJsonToCsv;
-				break;
-			case "csv-to-json":
-				convertFunction = convertCsvToJson;
-				break;
-		}
-
+		let convertFunction = FILE_CONVERTER_FUNCTIONS[`${fromTypeId}-to-${toTypeId}`];
 		if (convertFunction) {
 			try {
 				setOutput(convertFunction(input));
@@ -408,6 +407,14 @@ function convertJsonToCsv(input) {
 
 function convertCsvToJson(input) {
 	return JSON.stringify(csv2json(input), null, 2)
+}
+
+function convertJsonToYaml(input) {
+	return YAML.stringify(JSON.parse(input))
+}
+
+function convertYamlToJson(input) {
+	return JSON.stringify(YAML.parse(input), null, 2)
 }
 
 function downloadFile(url, fileName) {
