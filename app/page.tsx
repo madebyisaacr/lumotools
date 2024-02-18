@@ -34,7 +34,7 @@ export default function Home() {
 									return (
 										<a
 											key={index}
-											href={`./convert/${converter.slug}`}
+											href={`./convert/${fromType.id}-to-${toType.id}`}
 											className="flex flex-col gap-4 items-center justify-center p-4 bg-zinc-100 flex-1 text-center font-medium rounded-lg border border-zinc-200 hover:bg-zinc-200/70"
 										>
 											{fromType.name} to {toType.name}

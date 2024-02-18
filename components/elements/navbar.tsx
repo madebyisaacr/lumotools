@@ -70,7 +70,7 @@ export default function Navbar() {
 													className="p-0"
 												>
 													<a
-														href={`/convert/${converter.slug}`}
+														href={`/convert/${fromType.id}-to-${toType.id}`}
 														className="px-2 py-1.5"
 													>
 														{fromType.name} to{" "}

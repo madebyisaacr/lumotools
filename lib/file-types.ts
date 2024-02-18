@@ -182,8 +182,6 @@ for (const converter of fileConverters) {
 export const fileConverterSlugs = []
 
 for (const converter of fileConverters) {
-	const slug = `${converter.types[0]}-to-${converter.types[1]}`
-	converter.slug = slug
-	fileConverterSlugs.push(slug)
+	fileConverterSlugs.push(`${converter.types[0]}-to-${converter.types[1]}`)
 }
 
