@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { json2csv, csv2json } from "json-2-csv";
 import YAML from "yaml";
+import toWav from "audiobuffer-to-wav";
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
@@ -10,7 +11,7 @@ import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const FILE_CONVERTER_FUNCTIONS = {
+const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-csv": convertJSONtoCSV,
 	"csv-to-json": convertCSVtoJSON,
 	"json-to-yaml": convertJSONtoYAML,
@@ -29,7 +30,8 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 		if (file) {
 			let convertFunction = null;
 
-			if ((fromType.id == "jpg" && toType.id == "jpeg") || (fromType.id == "jpeg" && toType.id == "jpg")) {
+			const slug = `${fromTypeId}-to-${toTypeId}`
+			if (slug == "jpg-to-jpeg" || slug == "jpeg-to-jpg") {
 				convertFunction = (file, toTypeId) => {
 					return new Promise((resolve, reject) => {
 						resolve(URL.createObjectURL(file));
@@ -45,6 +47,11 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 					case "avif":
 						convertFunction = convertImage;
 						break;
+					case "mp3":
+					case "wav":
+					case "ogg":
+					case "aac":
+						convertFunction = convertAudioFile;
 				}
 			}
 
@@ -215,7 +222,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function convertFile() {
 		const input = inputRef.current?.value || "";
 
-		let convertFunction = FILE_CONVERTER_FUNCTIONS[`${fromTypeId}-to-${toTypeId}`];
+		let convertFunction = TEXT_FILE_CONVERTER_FUNCTIONS[`${fromTypeId}-to-${toTypeId}`];
 		if (convertFunction) {
 			try {
 				setOutput(convertFunction(input));
@@ -331,11 +338,11 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	);
 }
 
-function convertImage(file: File, toTypeId: string, returnBlob = false): Promise<string | Blob> {
+async function convertImage(file: File, toTypeId: string, toClipboard = false): Promise<string | Blob> {
 	const toType = fileTypes[toTypeId];
 
 	if (!toType) {
-		return Promise.reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
+		throw new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`);
 	}
 
 	const dummyCanvas = document.createElement("canvas");
@@ -346,20 +353,18 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 			throw new Error(notSupportedErrorMessage(toType.mimeType, toType.name));
 		}
 	} catch (error) {
-		return Promise.reject(new Error(notSupportedErrorMessage(toType.mimeType, toType.name)));
+		throw new Error(notSupportedErrorMessage(toType.mimeType, toType.name));
+	}
+
+	if (!file) {
+		throw new Error("No file found. Please upload a file.");
+	}
+
+	if (!file.type.includes("image")) {
+		throw new Error("Please upload an image file.");
 	}
 
 	return new Promise((resolve, reject) => {
-		if (!file) {
-			reject(new Error("No file found. Please upload a file."));
-			return;
-		}
-
-		if (!file.type.includes("image")) {
-			reject(new Error("Please upload an image file."));
-			return;
-		}
-
 		const reader = new FileReader();
 
 		reader.onload = function (event) {
@@ -373,7 +378,7 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 				ctx.drawImage(img, 0, 0);
 
 				try {
-					if (returnBlob) {
+					if (toClipboard) {
 						canvas.toBlob(
 							(blob) => {
 								resolve(blob);
@@ -400,6 +405,46 @@ function convertImage(file: File, toTypeId: string, returnBlob = false): Promise
 
 		reader.readAsDataURL(file);
 	});
+}
+
+async function convertAudioFile(file: File, toTypeId: string): Promise<string> {
+	const toType = fileTypes[toTypeId];
+
+	if (!toType) {
+		throw new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`);
+	}
+
+	try {
+    // Create a new AudioContext
+    const audioContext = new AudioContext();
+
+    // Read the file as an ArrayBuffer using FileReader
+    const arrayBuffer = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+
+    // Decode the audio file into an AudioBuffer
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+		if (toTypeId === "wav") {
+			// Use the audiobuffer-to-wav package to convert the AudioBuffer to WAV
+			const wavBuffer = toWav(audioBuffer);
+
+			// Convert the WAV buffer to a Blob
+			const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+
+			// Create a URL for the Blob and return it
+			const wavURL = URL.createObjectURL(wavBlob);
+			return wavURL;
+		} else if (toTypeId === "mp3") {
+			
+		}
+  } catch (error) {
+    throw error;
+  }
 }
 
 function convertJSONtoCSV(input) {
