@@ -30,7 +30,7 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 		if (file) {
 			let convertFunction = null;
 
-			const slug = `${fromTypeId}-to-${toTypeId}`
+			const slug = `${fromTypeId}-to-${toTypeId}`;
 			if (slug == "jpg-to-jpeg" || slug == "jpeg-to-jpg") {
 				convertFunction = (file, toTypeId) => {
 					return new Promise((resolve, reject) => {
@@ -71,32 +71,6 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 		}
 	}
 
-	function handlePaste(e) {
-		if (!fromType.allowClipboard) {
-			return;
-		}
-
-		// Prevent the default pasting event
-		e.preventDefault();
-
-		// Check if there's anything in the clipboard data
-		if (e.clipboardData) {
-			// Get the items from the clipboard
-			const items = e.clipboardData.items;
-
-			// Loop through the clipboard items
-			for (let i = 0; i < items.length; i++) {
-				// Check if the item is an image
-				if (items[i].type.indexOf("image") !== -1) {
-					// Get the image file
-					setFile(items[i].getAsFile());
-
-					break;
-				}
-			}
-		}
-	}
-
 	const handleFileChange = (event) => {
 		const file = event.target.files[0];
 		if (file) {
@@ -106,19 +80,45 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 		}
 	};
 
-	const handleDrop = (e) => {
-		preventDefaults(e);
+	useEffect(() => {
+		const handleDrop = (e) => {
+			preventDefaults(e);
 
-		let files = e.dataTransfer.files;
-		for (const file of files) {
-			if (file.type == fromType.mimeType) {
-				setFile(file);
-				break;
+			let files = e.dataTransfer.files;
+			for (const file of files) {
+				if (file.type == fromType.mimeType) {
+					setFile(file);
+					break;
+				}
+			}
+		};
+
+		function handlePaste(e) {
+			if (!fromType.allowClipboard) {
+				return;
+			}
+
+			// Prevent the default pasting event
+			e.preventDefault();
+
+			// Check if there's anything in the clipboard data
+			if (e.clipboardData) {
+				// Get the items from the clipboard
+				const items = e.clipboardData.items;
+
+				// Loop through the clipboard items
+				for (let i = 0; i < items.length; i++) {
+					// Check if the item is an image
+					if (items[i].type.indexOf("image") !== -1) {
+						// Get the image file
+						setFile(items[i].getAsFile());
+
+						break;
+					}
+				}
 			}
 		}
-	};
 
-	useEffect(() => {
 		document.addEventListener("dragenter", preventDefaults, false);
 		document.addEventListener("dragover", preventDefaults, false);
 		document.addEventListener("dragleave", preventDefaults, false);
@@ -132,7 +132,7 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 			document.removeEventListener("drop", handleDrop, false);
 			document.removeEventListener("paste", handlePaste);
 		};
-	}, [handlePaste]);
+	}, []);
 
 	return (
 		<div className="flex flex-col gap-3 items-center w-full max-w-5xl">
@@ -242,29 +242,29 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 		navigator.clipboard.writeText(output);
 	}
 
-	// Handle file drop
-	const handleDrop = (e) => {
-		preventDefaults(e);
-
-		let files = e.dataTransfer.files;
-		for (const file of files) {
-			if (file.type == fromType.mimeType) {
-				setFileName(file.name);
-
-				const reader = new FileReader();
-				reader.onload = (event) => {
-					if (inputRef.current) {
-						inputRef.current.value = event.target.result as string;
-						invalidateOutput();
-					}
-				};
-				reader.readAsText(file);
-				break;
-			}
-		}
-	};
-
 	useEffect(() => {
+		// Handle file drop
+		const handleDrop = (e) => {
+			preventDefaults(e);
+
+			let files = e.dataTransfer.files;
+			for (const file of files) {
+				if (file.type == fromType.mimeType) {
+					setFileName(file.name);
+
+					const reader = new FileReader();
+					reader.onload = (event) => {
+						if (inputRef.current) {
+							inputRef.current.value = event.target.result as string;
+							invalidateOutput();
+						}
+					};
+					reader.readAsText(file);
+					break;
+				}
+			}
+		};
+
 		document.addEventListener("dragenter", preventDefaults, false);
 		document.addEventListener("dragover", preventDefaults, false);
 		document.addEventListener("dragleave", preventDefaults, false);
@@ -415,36 +415,35 @@ async function convertAudioFile(file: File, toTypeId: string): Promise<string> {
 	}
 
 	try {
-    // Create a new AudioContext
-    const audioContext = new AudioContext();
+		// Create a new AudioContext
+		const audioContext = new AudioContext();
 
-    // Read the file as an ArrayBuffer using FileReader
-    const arrayBuffer = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(file);
-    });
+		// Read the file as an ArrayBuffer using FileReader
+		const arrayBuffer = (await new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as ArrayBuffer);
+			reader.onerror = (error) => reject(error);
+			reader.readAsArrayBuffer(file);
+		})) as ArrayBuffer;
 
-    // Decode the audio file into an AudioBuffer
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+		// Decode the audio file into an AudioBuffer
+		const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
 		if (toTypeId === "wav") {
 			// Use the audiobuffer-to-wav package to convert the AudioBuffer to WAV
 			const wavBuffer = toWav(audioBuffer);
 
 			// Convert the WAV buffer to a Blob
-			const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+			const wavBlob = new Blob([wavBuffer], { type: "audio/wav" });
 
 			// Create a URL for the Blob and return it
 			const wavURL = URL.createObjectURL(wavBlob);
 			return wavURL;
 		} else if (toTypeId === "mp3") {
-			
 		}
-  } catch (error) {
-    throw error;
-  }
+	} catch (error) {
+		throw error;
+	}
 }
 
 function convertJSONtoCSV(input) {
