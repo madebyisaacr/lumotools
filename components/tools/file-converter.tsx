@@ -10,6 +10,7 @@ import { fragmentMono } from "@/lib/fonts";
 import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FilePreview } from "@/components/elements/file-preview";
 
 const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-csv": convertJSONtoCSV,
@@ -152,7 +153,7 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 				<div className="flex flex-col gap-3 w-full flex-1 items-center justify-center">
 					{file ? (
 						<>
-							<img src={URL.createObjectURL(file)} alt={file.name} className="h-36 object-cover rounded-md" />
+							<FilePreview file={file} />
 							<span className="w-full text-center text-lg font-semibold">{file.name}</span>
 						</>
 					) : (
