@@ -6,13 +6,12 @@ const WAVEFORM_ID = "waveform";
 export function FilePreview({ file }: { file: File }) {
 	const [dataUrl, setDataUrl] = useState<string | null>(null);
 	const wavesurferRef = useRef(null);
-	const isAudio = file.type.startsWith("audio/");
 
 	useEffect(() => {
 		const url = URL.createObjectURL(file);
 		setDataUrl(url);
 
-		if (isAudio) {
+		if (file.type.startsWith("audio/")) {
 			if (wavesurferRef.current) {
 				// Destroy the existing instance or update it
 				wavesurferRef.current.destroy();
@@ -32,7 +31,7 @@ export function FilePreview({ file }: { file: File }) {
 
 	if (file.type.startsWith("image/")) {
 		return <img src={dataUrl} alt={file.name} className="h-36 object-cover rounded-md" />;
-	} else if (isAudio) {
+	} else if (file.type.startsWith("audio/")) {
 		return <div id={WAVEFORM_ID} className="w-full h-36 pointer-events-none" />;
 	}
 

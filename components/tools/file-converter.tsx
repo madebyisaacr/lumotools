@@ -87,8 +87,11 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 	};
 
 	useEffect(() => {
+		// @ts-ignore
 		window.MPEGMode = MPEGMode;
+		// @ts-ignore
 		window.Lame = Lame;
+		// @ts-ignore
 		window.BitStream = BitStream;
 
 		const handleDrop = (e) => {
