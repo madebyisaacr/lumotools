@@ -184,7 +184,7 @@ export const fileTypes = {
 		titles: TITLES.audio,
 		mimeType: "audio/ogg",
 		description:
-			"Ogg is a free, open container format that supports efficient streaming and manipulation of high quality digital multimedia, including but not limited to audio files.",
+			"Ogg Vorbis files are a type of audio file format that uses the Ogg container format and the Vorbis compression codec, designed for efficient streaming and high-quality audio compression.",
 		category: "audio",
 	},
 	wav: {
