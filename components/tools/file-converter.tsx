@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { json2csv, csv2json } from "json-2-csv";
 import YAML from "yaml";
 import toWav from "audiobuffer-to-wav";
+import lamejs from "lamejs";
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
@@ -11,6 +12,10 @@ import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilePreview } from "@/components/elements/file-preview";
+
+import MPEGMode from "lamejs/src/js/MPEGMode";
+import Lame from 'lamejs/src/js/Lame';
+import BitStream from 'lamejs/src/js/BitStream';
 
 const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-csv": convertJSONtoCSV,
@@ -82,6 +87,10 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 	};
 
 	useEffect(() => {
+		window.MPEGMode = MPEGMode;
+		window.Lame = Lame;
+		window.BitStream = BitStream;
+
 		const handleDrop = (e) => {
 			preventDefaults(e);
 
@@ -441,6 +450,23 @@ async function convertAudioFile(file: File, toTypeId: string): Promise<string> {
 			const wavURL = URL.createObjectURL(wavBlob);
 			return wavURL;
 		} else if (toTypeId === "mp3") {
+			// Convert AudioBuffer to WAV samples
+			const leftChannel = audioBuffer.getChannelData(0); // For simplicity, this example assumes mono audio
+			const samples = new Int16Array(leftChannel.length);
+			for (let i = 0; i < samples.length; i++) {
+				samples[i] = leftChannel[i] * 0x7fff; // Convert float32 audio data to int16
+			}
+
+			// Step 3: Use lamejs to encode the WAV samples to MP3
+			const mp3Encoder = new lamejs.Mp3Encoder(1, audioBuffer.sampleRate, 128); // 1 channel (mono), sample rate, 128 kbps
+			const mp3Data = mp3Encoder.encodeBuffer(samples);
+			const mp3End = mp3Encoder.flush(); // Finalize the MP3 data
+
+			// Combine the encoded MP3 data chunks
+			const mp3Blob = new Blob([mp3Data, mp3End], { type: "audio/mp3" });
+
+			// Step 4: Resolve the promise with the MP3 Blob
+			return URL.createObjectURL(mp3Blob);
 		}
 	} catch (error) {
 		throw error;
