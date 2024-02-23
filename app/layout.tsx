@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { inter } from "@/lib/fonts";
 
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/elements/navbar";
@@ -20,7 +19,7 @@ export default function RootLayout({
 			<head>
 				<script defer data-domain="lumotools.com" src="https://plausible.io/js/script.js" />
 			</head>
-			<body className={cn(inter.className, "pt-14")}>
+			<body className="pt-14">
 				<Navbar />
 				<main className="flex flex-row p-10 pt-14 w-full justify-center">
 					<div className="flex flex-col items-center w-full ">{children}</div>
