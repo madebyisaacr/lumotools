@@ -9,7 +9,7 @@ import lamejs from "lamejs";
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
 import { fileTypes } from "@/lib/file-types";
-import { UploadCloud, Download, Copy, Upload, Wand2 } from "lucide-react";
+import { UploadCloud, Download, Copy, Upload, Wand2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilePreview } from "@/components/elements/file-preview";
 
@@ -197,13 +197,16 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 }
 
 export function TextConverter({ fromTypeId, toTypeId }) {
+	const fromType = fileTypes[fromTypeId] || {};
+	const toType = fileTypes[toTypeId] || {};
+
 	const [output, setOutput] = useState("");
 	const [fileName, setFileName] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
-	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const [copiedState, setCopiedState] = useState(false);
 
-	const fromType = fileTypes[fromTypeId] || {};
-	const toType = fileTypes[toTypeId] || {};
+	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const copyButtonRef = useRef<HTMLButtonElement>(null);
 
 	function invalidateOutput() {
 		setOutput("");
@@ -248,11 +251,13 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function onDownloadClick() {
 		const blob = new Blob([output], { type: toType.mimeType });
 		const url = URL.createObjectURL(blob);
-		downloadFile(url, generateFileName(fileName, toType.resultExtension));
+		downloadFile(url, generateFileName(fileName.length ? fileName : `${fromTypeId}-to-${toTypeId}`, toType.resultExtension));
 	}
 
 	function copyOutputToClipboard() {
 		navigator.clipboard.writeText(output);
+		setCopiedState(true);
+		setTimeout(() => setCopiedState(false), 2000);
 	}
 
 	useEffect(() => {
@@ -329,9 +334,9 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 									</Button>
 								</div>
 								<div className="flex-1 bg-zinc-100">
-									<Button variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
-										<Copy size={16} strokeWidth={2} className="mr-3" />
-										Copy to Clipboard
+									<Button ref={copyButtonRef} variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
+										{copiedState ? <Check size={16} strokeWidth={2} className="mr-3" /> : <Copy size={16} strokeWidth={2} className="mr-3" />}
+										{copiedState ? "Copied" : "Copy to Clipboard"}
 									</Button>
 								</div>
 							</div>
