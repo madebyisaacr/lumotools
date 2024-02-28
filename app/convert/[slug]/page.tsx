@@ -20,6 +20,10 @@ export function generateMetadata({ params }) {
 	};
 }
 
+export function generateStaticParams() {
+  return fileConverterSlugs.map((slug) => ({ slug }));
+}
+
 export default function Page({ params }: { params: { slug: string } }) {
 	const { slug } = params;
 
