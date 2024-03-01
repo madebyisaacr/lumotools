@@ -19,10 +19,6 @@ import {
 export default function Navbar() {
 	const convertersByType = {};
 	for (const converter of fileConverters) {
-		if (converter.types.includes("jpeg")) {
-			continue
-		}
-
 		convertersByType[converter.types[0]] =
 			convertersByType[converter.types[0]] || [];
 		convertersByType[converter.types[0]].push(converter);
@@ -55,7 +51,7 @@ export default function Navbar() {
 								</MenubarTrigger>
 								<MenubarContent>
 									{fileConverters
-									.filter((converter) => fileTypes[converter.types[0]].category == categoryName && !converter.types.includes("jpeg"))
+									.filter((converter) => fileTypes[converter.types[0]].category == categoryName && !converter.alternativeTo)
 									.map((converter, index) => {
 											const fromType =
 												fileTypes[converter.types[0]];
@@ -68,7 +64,7 @@ export default function Navbar() {
 													className="p-0"
 												>
 													<a
-														href={`/convert/${fromType.id}-to-${toType.id}`}
+														href={`/convert/${converter.slug}`}
 														className="px-2 py-1.5"
 													>
 														{fromType.name} to{" "}

@@ -52,7 +52,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 					Convert {fromType.name} {fromType.titles[1]} to {toType.name} instantly with this free online tool.
 				</p>
 			</div>
-			<ConverterComponent fromTypeId={fromType.id} toTypeId={toType.id} />
+			<ConverterComponent converter={converter} />
 			<div className="flex flex-row gap-4 w-full max-w-5xl">
 				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
 					<h2 className="text-xl font-semibold">About {fromType.name} Files</h2>

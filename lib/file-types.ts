@@ -4,11 +4,15 @@ const TITLES = {
 	file: ["file", "files"],
 };
 
+export const alternativeFileTypes = {
+	jpg: "jpeg",
+	yaml: "yml",
+};
+
 export const fileCategories = {
 	text: {
 		name: "Text File",
-		description:
-			"Convert between text-based file formats, such as JSON, CSV, XML, and more, to manage and transform your data.",
+		description: "Convert between text-based file formats, such as JSON, CSV, XML, and more, to manage and transform your data.",
 	},
 	image: {
 		name: "Image",
@@ -112,6 +116,15 @@ export const fileTypes = {
 		mimeType: "text/yaml",
 		description:
 			"YAML files are a human-readable data serialization format used for configuration files, data exchange between languages, and more, employing a structure of key-value pairs, lists, and nested objects.",
+		category: "text",
+	},
+	yml: {
+		name: "YML",
+		extensions: ["yaml", "yml"],
+		titles: TITLES.file,
+		mimeType: "text/yaml",
+		description:
+			"YML files, also known as YAML files, are a human-readable data serialization format used for configuration files and data exchange between languages.",
 		category: "text",
 	},
 	psd: {
@@ -218,7 +231,7 @@ for (const typeId in fileTypes) {
 	}
 }
 
-export const fileConverters = [
+let baseFileConverters: any[] = [
 	{ types: ["webp", "jpg"], component: "file" },
 	{ types: ["webp", "png"], component: "file" },
 	{ types: ["jpg", "webp"], component: "file" },
@@ -246,24 +259,40 @@ export const fileConverters = [
 	{ types: ["aac", "wav"], component: "file" },
 ];
 
-// Add jpeg duplicates to converters with jpg
-for (const converter of fileConverters) {
+const newFileConverters = [];
+
+// Add alternative file types to converters
+for (const converter of baseFileConverters) {
 	const { types } = converter;
+	const slug = `${types[0]}-to-${types[1]}`;
+
+	converter.alternativeTo = null;
+	converter.slug = slug;
+
+	newFileConverters.push(converter);
 
 	// Skip if both types are jpg or jpeg
-	if ((types[0] == "jpg" || types[0] == "jpeg") && (types[1] == "jpg" || types[1] == "jpeg")) {
+	if (slug == "jpg-to-jpeg" || slug == "jpeg-to-jpg") {
 		continue;
 	}
 
-	if (types[0] === "jpg") {
-		fileConverters.push({ ...converter, types: ["jpeg", types[1]] });
-	} else if (types[1] === "jpg") {
-		fileConverters.push({ ...converter, types: [types[0], "jpeg"] });
+	// Add alternative file types
+	if (types[0] in alternativeFileTypes && !(types[1] in alternativeFileTypes)) {
+		newFileConverters.push({
+			...converter,
+			slug: `${alternativeFileTypes[types[0]]}-to-${types[1]}`,
+			types: [alternativeFileTypes[types[0]], types[1]],
+			alternativeTo: slug,
+		});
+	} else if (types[1] in alternativeFileTypes && !(types[0] in alternativeFileTypes)) {
+		newFileConverters.push({
+			...converter,
+			slug: `${types[0]}-to-${alternativeFileTypes[types[1]]}`,
+			types: [types[0], alternativeFileTypes[types[1]]],
+			alternativeTo: slug,
+		});
 	}
 }
 
-export const fileConverterSlugs = [];
-
-for (const converter of fileConverters) {
-	fileConverterSlugs.push(`${converter.types[0]}-to-${converter.types[1]}`);
-}
+export const fileConverters = newFileConverters;
+export const fileConverterSlugs = fileConverters.map((converter) => converter.slug);

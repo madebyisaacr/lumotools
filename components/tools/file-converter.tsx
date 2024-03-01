@@ -5,10 +5,11 @@ import { json2csv, csv2json } from "json-2-csv";
 import YAML from "yaml";
 import toWav from "audiobuffer-to-wav";
 import lamejs from "lamejs";
+import * as pdfjsLib from 'pdfjs-dist';
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
-import { fileTypes } from "@/lib/file-types";
+import { fileConverters, fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilePreview } from "@/components/elements/file-preview";
@@ -25,19 +26,18 @@ const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"rtf-to-txt": convertRTFtoTXT,
 };
 
-export function FileConverter({ fromTypeId, toTypeId }) {
+export function FileConverter({ converter }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
 
-	const fromType = fileTypes[fromTypeId] || {};
-	const toType = fileTypes[toTypeId] || {};
+	const fromType = fileTypes[converter.types[0]] || {};
+	const toType = fileTypes[converter.types[1]] || {};
 
 	function convertAndSaveFile(toClipboard) {
 		if (file) {
 			let convertFunction = null;
 
-			const slug = `${fromTypeId}-to-${toTypeId}`;
-			if (slug == "jpg-to-jpeg" || slug == "jpeg-to-jpg") {
+			if (converter.slug == "jpg-to-jpeg" || converter.slug == "jpeg-to-jpg") {
 				convertFunction = (file, toTypeId) => {
 					return new Promise((resolve, reject) => {
 						resolve(URL.createObjectURL(file));
@@ -62,7 +62,7 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 			}
 
 			if (convertFunction) {
-				convertFunction(file, toTypeId, toClipboard)
+				convertFunction(file, toType.id, toClipboard)
 					.then((result) => {
 						if (toClipboard) {
 							navigator.clipboard.write([new window.ClipboardItem({ [toType.mimeType]: result })]);
@@ -196,9 +196,9 @@ export function FileConverter({ fromTypeId, toTypeId }) {
 	);
 }
 
-export function TextConverter({ fromTypeId, toTypeId }) {
-	const fromType = fileTypes[fromTypeId] || {};
-	const toType = fileTypes[toTypeId] || {};
+export function TextConverter({ converter }) {
+	const fromType = fileTypes[converter.types[0]] || {};
+	const toType = fileTypes[converter.types[1]] || {};
 
 	const [output, setOutput] = useState("");
 	const [fileName, setFileName] = useState("");
@@ -238,7 +238,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function convertFile() {
 		const input = inputRef.current?.value || "";
 
-		let convertFunction = TEXT_FILE_CONVERTER_FUNCTIONS[`${fromTypeId}-to-${toTypeId}`];
+		let convertFunction = TEXT_FILE_CONVERTER_FUNCTIONS[converter.alternativeTo || converter.slug];
 		if (convertFunction) {
 			try {
 				setOutput(convertFunction(input));
@@ -251,7 +251,7 @@ export function TextConverter({ fromTypeId, toTypeId }) {
 	function onDownloadClick() {
 		const blob = new Blob([output], { type: toType.mimeType });
 		const url = URL.createObjectURL(blob);
-		downloadFile(url, generateFileName(fileName.length ? fileName : `${fromTypeId}-to-${toTypeId}`, toType.resultExtension));
+		downloadFile(url, generateFileName(fileName.length ? fileName : converter.slug, toType.resultExtension));
 	}
 
 	function copyOutputToClipboard() {
