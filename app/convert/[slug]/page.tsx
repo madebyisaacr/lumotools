@@ -1,5 +1,6 @@
 import { fileTypes, fileConverters, fileConverterSlugs } from "@/lib/file-types";
-import {FileConverter, TextConverter} from "@/components/tools/file-converter";
+import { FileConverter, TextConverter } from "@/components/tools/file-converter";
+import { FileIcon } from "@/components/elements/file-icon";
 
 const CONVERTER_COMPONENTS = {
 	file: FileConverter,
@@ -19,7 +20,7 @@ export function generateMetadata({ params }) {
 }
 
 export function generateStaticParams() {
-  return fileConverterSlugs.map((slug) => ({ slug }));
+	return fileConverterSlugs.map((slug) => ({ slug }));
 }
 
 export default function Page({ params }: { params: { slug: string } }) {
@@ -53,11 +54,13 @@ export default function Page({ params }: { params: { slug: string } }) {
 			<ConverterComponent converter={converter} />
 			<div className="flex flex-row gap-4 w-full max-w-5xl max-md:flex-col">
 				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
-					<h2 className="text-xl font-semibold">About {fromType.name} Files</h2>
+					<FileIcon type={fromType.id} size={64}/>
+					<h2 className="text-xl font-semibold mt-3">About {fromType.name} Files</h2>
 					<p>{fromType.description}</p>
 				</div>
 				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
-					<h2 className="text-xl font-semibold">About {toType.name} Files</h2>
+				<FileIcon type={toType.id} size={64}/>
+					<h2 className="text-xl font-semibold mt-3">About {toType.name} Files</h2>
 					<p>{toType.description}</p>
 				</div>
 			</div>

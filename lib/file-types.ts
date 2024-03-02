@@ -35,7 +35,6 @@ export const fileCategories = {
 			"Convert between audio file formats, such as MP3, WAV, OGG, and more, to optimize your audio for streaming and storage.",
 	},
 };
-
 export const fileTypes = {
 	webp: {
 		name: "WebP",
@@ -46,6 +45,8 @@ export const fileTypes = {
 		description:
 			"WebP is a modern image format that provides superior lossless and lossy compression for web images, making them smaller in size while maintaining high quality.",
 		category: "image",
+		accentColor: "#6ABD15",
+		icon: "image",
 	},
 	jpg: {
 		name: "JPG",
@@ -55,6 +56,8 @@ export const fileTypes = {
 		description:
 			"JPG files are a popular image format known for their efficient compression, which allows for reduced file sizes while maintaining relatively high image quality, making them ideal for sharing and storing photographs and digital images on the web and in various devices.",
 		category: "image",
+		accentColor: "#7C8D96",
+		icon: "image",
 	},
 	jpeg: {
 		name: "JPEG",
@@ -64,6 +67,8 @@ export const fileTypes = {
 		description:
 			"JPEG files, also known as JPG, are a popular format for digital images, characterized by their compression which balances image quality with file size.",
 		category: "image",
+		accentColor: "#7C8D96",
+		icon: "image",
 	},
 	png: {
 		name: "PNG",
@@ -73,6 +78,8 @@ export const fileTypes = {
 		description:
 			"PNG (Portable Network Graphics) is a lossless image format known for its high-quality, transparent graphics suitable for the web and image editing.",
 		category: "image",
+		accentColor: "#1E90FF",
+		icon: "image",
 	},
 	gif: {
 		name: "GIF",
@@ -82,6 +89,8 @@ export const fileTypes = {
 		description:
 			"GIF files are a type of image file format that supports both animated and static images, using a palette of up to 256 colors.",
 		category: "image",
+		accentColor: "#8320f5",
+		icon: "gif",
 	},
 	csv: {
 		name: "CSV",
@@ -90,6 +99,8 @@ export const fileTypes = {
 		mimeType: "text/csv",
 		description: "CSV files are plain text files that use commas to separate values, often used for storing tabular data.",
 		category: "data",
+		accentColor: "#1f9459",
+		icon: "table",
 	},
 	markdown: {
 		name: "Markdown",
@@ -100,6 +111,8 @@ export const fileTypes = {
 		description:
 			"Markdown files are text files that use Markdown formatting to structure content, making it easy to read in plain text yet capable of being converted into HTML or other formats.",
 		category: "document",
+		accentColor: "#222",
+		icon: "text",
 	},
 	xml: {
 		name: "XML",
@@ -109,6 +122,8 @@ export const fileTypes = {
 		description:
 			"XML files are structured text files used to store and transport data, using tags to define objects and attributes in a hierarchical format that is both human-readable and machine-parseable.",
 		category: "data",
+		accentColor: "#075aa3",
+		icon: "code",
 	},
 	json: {
 		name: "JSON",
@@ -118,6 +133,8 @@ export const fileTypes = {
 		description:
 			"JSON (JavaScript Object Notation) files are a lightweight data-interchange format that uses human-readable text to store and transmit data objects consisting of attribute-value pairs and arrays.",
 		category: "data",
+		accentColor: "#316BA1",
+		icon: "braces",
 	},
 	yaml: {
 		name: "YAML",
@@ -127,6 +144,8 @@ export const fileTypes = {
 		description:
 			"YAML files are a human-readable data serialization format used for configuration files, data exchange between languages, and more, employing a structure of key-value pairs, lists, and nested objects.",
 		category: "data",
+		accentColor: "#CC2A16",
+		icon: "listTree",
 	},
 	yml: {
 		name: "YML",
@@ -136,6 +155,8 @@ export const fileTypes = {
 		description:
 			"YML files, also known as YAML files, are a human-readable data serialization format used for configuration files and data exchange between languages.",
 		category: "data",
+		accentColor: "#CC2A16",
+		icon: "listTree",
 	},
 	psd: {
 		name: "PSD",
@@ -145,6 +166,8 @@ export const fileTypes = {
 		description:
 			"PSD files are proprietary layered image files used by Adobe Photoshop, designed to support a wide range of imaging options within a single file.",
 		category: "image",
+		accentColor: "#2DA9FF",
+		icon: "image",
 	},
 	bmp: {
 		name: "BMP",
@@ -154,6 +177,8 @@ export const fileTypes = {
 		description:
 			"BMP files are a bitmap image format used for storing digital images, characterized by their simple structure and lack of compression, leading to large file sizes but high quality.",
 		category: "image",
+		accentColor: "#242d8a",
+		icon: "image",
 	},
 	avif: {
 		name: "AVIF",
@@ -164,6 +189,8 @@ export const fileTypes = {
 		description:
 			"AVIF (AV1 Image File Format) is a new, highly efficient image format derived from the key frames of AV1 video codec, designed for compression, quality, and versatility in web usage.",
 		category: "image",
+		accentColor: "#198a51",
+		icon: "image",
 	},
 	pdf: {
 		name: "PDF",
@@ -173,6 +200,8 @@ export const fileTypes = {
 		description:
 			"PDF files are a type of document file format created by Adobe that allows users to present and exchange documents reliably, independent of software, hardware, or operating system.",
 		category: "document",
+		accentColor: "#FF3708",
+		icon: "text",
 	},
 	rtf: {
 		name: "RTF",
@@ -182,6 +211,8 @@ export const fileTypes = {
 		description:
 			"RTF files, or Rich Text Format documents, are text files that include formatting such as fonts, styles, and colors, compatible across different word processing programs.",
 		category: "document",
+		accentColor: "#808080",
+		icon: "text",
 	},
 	txt: {
 		name: "TXT",
@@ -191,6 +222,8 @@ export const fileTypes = {
 		description:
 			"TXT files are plain text documents that contain unformatted text, readable by various text editors and word processing software without specialized formatting.",
 		category: "data",
+		accentColor: "#4a4a4a",
+		icon: "text",
 	},
 	mp3: {
 		name: "MP3",
@@ -200,6 +233,8 @@ export const fileTypes = {
 		description:
 			"MP3 files are a type of digital audio file that uses a form of lossy data compression to reduce file size while retaining a sound quality that is close to the original recording.",
 		category: "audio",
+		accentColor: "#6e80db",
+		icon: "audio",
 	},
 	ogg: {
 		name: "Ogg",
@@ -209,6 +244,8 @@ export const fileTypes = {
 		description:
 			"Ogg Vorbis files are a type of audio file format that uses the Ogg container format and the Vorbis compression codec, designed for efficient streaming and high-quality audio compression.",
 		category: "audio",
+		accentColor: "#662dc2",
+		icon: "audio",
 	},
 	wav: {
 		name: "WAV",
@@ -218,6 +255,8 @@ export const fileTypes = {
 		description:
 			"WAV audio files are a digital audio format standard for storing waveform data, allowing high-quality, uncompressed sound recordings.",
 		category: "audio",
+		accentColor: "#1E90FF",
+		icon: "waveform",
 	},
 	aac: {
 		name: "AAC",
@@ -227,6 +266,8 @@ export const fileTypes = {
 		description:
 			"AAC (Advanced Audio Coding) is a digital audio compression format that provides high-quality audio at lower bitrates than MP3, making it efficient for streaming and storage.",
 		category: "audio",
+		accentColor: "#fc9403",
+		icon: "audio",
 	},
 };
 

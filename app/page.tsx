@@ -1,4 +1,6 @@
 import { fileTypes, fileConverters, fileCategories } from "@/lib/file-types";
+import { FileIcon } from "@/components/elements/file-icon";
+import { ChevronRight } from "lucide-react";
 
 export default function Home() {
 	return (
@@ -27,8 +29,13 @@ export default function Home() {
 											<a
 												key={index}
 												href={`./convert/${converter.slug}`}
-												className="flex flex-col gap-4 items-center justify-center p-4 bg-zinc-100 flex-1 text-center font-medium rounded-lg border border-zinc-200 hover:bg-primary hover:text-primary-foreground hover:border-transparent transition-colors"
+												className="flex flex-col gap-4 items-center justify-center p-4 bg-zinc-100 flex-1 text-center font-medium rounded-lg border border-black/5 hover:bg-zinc-200 transition-colors"
 											>
+												<div className="flex flex-row gap-1 items-center">
+													<FileIcon type={converter.types[0]} size={52} />
+													<ChevronRight size={16} strokeWidth={3} opacity={0.7} />
+													<FileIcon type={converter.types[1]} size={52} />
+												</div>
 												{fromType.name} to {toType.name}
 											</a>
 										);

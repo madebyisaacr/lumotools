@@ -336,7 +336,9 @@ export function TextConverter({ converter }) {
 	}, []);
 
 	return (
-		<div className="flex flex-row w-full gap-4 h-[550px] max-md:h-[900px] max-md:flex-col">
+		<div
+			className="flex flex-row w-full gap-4 h-[550px] max-md:h-[900px] max-md:flex-col"
+		>
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-row gap-3 justify-between items-center px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">
 					<span className="font-semibold">{fromType.name} Input</span>
