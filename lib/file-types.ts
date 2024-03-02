@@ -2,6 +2,7 @@ const TITLES = {
 	image: ["image", "images"],
 	audio: ["file", "audio files"],
 	file: ["file", "files"],
+	document: ["document", "documents"],
 };
 
 export const alternativeFileTypes = {
@@ -10,14 +11,19 @@ export const alternativeFileTypes = {
 };
 
 export const fileCategories = {
-	text: {
-		name: "Text File",
+	data: {
+		name: "Data File",
 		description: "Convert between text-based file formats, such as JSON, CSV, XML, and more, to manage and transform your data.",
 	},
 	image: {
 		name: "Image",
 		description:
 			"Convert between popular image formats, such as WebP, JPG, PNG, and more, to optimize your images for the web and other uses.",
+	},
+	document: {
+		name: "Document",
+		description:
+			"Convert between popular document formats, such as PDF, RTF, and more, to manage and transform your documents.",
 	},
 	audio: {
 		name: "Audio",
@@ -79,7 +85,7 @@ export const fileTypes = {
 		titles: TITLES.file,
 		mimeType: "text/csv",
 		description: "CSV files are plain text files that use commas to separate values, often used for storing tabular data.",
-		category: "text",
+		category: "data",
 	},
 	markdown: {
 		name: "Markdown",
@@ -89,7 +95,7 @@ export const fileTypes = {
 		resultExtension: "md",
 		description:
 			"Markdown files are text files that use Markdown formatting to structure content, making it easy to read in plain text yet capable of being converted into HTML or other formats.",
-		category: "text",
+		category: "document",
 	},
 	xml: {
 		name: "XML",
@@ -98,7 +104,7 @@ export const fileTypes = {
 		mimeType: "application/xml",
 		description:
 			"XML files are structured text files used to store and transport data, using tags to define objects and attributes in a hierarchical format that is both human-readable and machine-parseable.",
-		category: "text",
+		category: "data",
 	},
 	json: {
 		name: "JSON",
@@ -107,7 +113,7 @@ export const fileTypes = {
 		mimeType: "application/json",
 		description:
 			"JSON (JavaScript Object Notation) files are a lightweight data-interchange format that uses human-readable text to store and transmit data objects consisting of attribute-value pairs and arrays.",
-		category: "text",
+		category: "data",
 	},
 	yaml: {
 		name: "YAML",
@@ -116,7 +122,7 @@ export const fileTypes = {
 		mimeType: "text/yaml",
 		description:
 			"YAML files are a human-readable data serialization format used for configuration files, data exchange between languages, and more, employing a structure of key-value pairs, lists, and nested objects.",
-		category: "text",
+		category: "data",
 	},
 	yml: {
 		name: "YML",
@@ -125,7 +131,7 @@ export const fileTypes = {
 		mimeType: "text/yaml",
 		description:
 			"YML files, also known as YAML files, are a human-readable data serialization format used for configuration files and data exchange between languages.",
-		category: "text",
+		category: "data",
 	},
 	psd: {
 		name: "PSD",
@@ -161,8 +167,8 @@ export const fileTypes = {
 		titles: TITLES.file,
 		mimeType: "application/pdf",
 		description:
-			"PDF files are a universal file type designed for sharing documents that maintain their formatting regardless of the software, hardware, or operating system used to view them.",
-		category: "text",
+			"PDF files are a type of document file format created by Adobe that allows users to present and exchange documents reliably, independent of software, hardware, or operating system.",
+		category: "document",
 	},
 	rtf: {
 		name: "RTF",
@@ -171,7 +177,7 @@ export const fileTypes = {
 		mimeType: "application/rtf",
 		description:
 			"RTF files, or Rich Text Format documents, are text files that include formatting such as fonts, styles, and colors, compatible across different word processing programs.",
-		category: "text",
+		category: "document",
 	},
 	txt: {
 		name: "TXT",
@@ -180,7 +186,7 @@ export const fileTypes = {
 		mimeType: "text/plain",
 		description:
 			"TXT files are plain text documents that contain unformatted text, readable by various text editors and word processing software without specialized formatting.",
-		category: "text",
+		category: "data",
 	},
 	mp3: {
 		name: "MP3",
@@ -232,6 +238,12 @@ for (const typeId in fileTypes) {
 }
 
 let baseFileConverters: any[] = [
+	// Data
+	{ types: ["json", "csv"], component: "text" },
+	{ types: ["json", "yaml"], component: "text" },
+	{ types: ["csv", "json"], component: "text" },
+	{ types: ["yaml", "json"], component: "text" },
+	// Image
 	{ types: ["webp", "jpg"], component: "file" },
 	{ types: ["webp", "png"], component: "file" },
 	{ types: ["jpg", "webp"], component: "file" },
@@ -246,11 +258,15 @@ let baseFileConverters: any[] = [
 	{ types: ["bmp", "png"], component: "file" },
 	{ types: ["jpeg", "jpg"], component: "file" },
 	{ types: ["jpg", "jpeg"], component: "file" },
-	{ types: ["json", "csv"], component: "text" },
-	{ types: ["json", "yaml"], component: "text" },
-	{ types: ["csv", "json"], component: "text" },
-	{ types: ["yaml", "json"], component: "text" },
+	{ types: ["png", "pdf"], component: "file" },
+	{ types: ["jpg", "pdf"], component: "file" },
+	{ types: ["bmp", "pdf"], component: "file" },
+	{ types: ["gif", "pdf"], component: "file" },
+	{ types: ["webp", "pdf"], component: "file" },
+	{ types: ["avif", "pdf"], component: "file" },
+	// Document
 	{ types: ["rtf", "txt"], component: "text" },
+	// Audio
 	{ types: ["mp3", "wav"], component: "file" },
 	{ types: ["wav", "mp3"], component: "file" },
 	{ types: ["ogg", "mp3"], component: "file" },

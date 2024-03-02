@@ -2,10 +2,10 @@ import { fileTypes, fileConverters, fileCategories } from "@/lib/file-types";
 
 export default function Home() {
 	return (
-		<div className="flex flex-col gap-16 max-w-6xl">
+		<div className="flex flex-col gap-16 w-full max-w-5xl">
 			<div className="flex flex-col gap-6">
 				<h1 className="text-5xl font-semibold w-full text-center text-balance">
-					Free file converters and online utilities.
+					Free file converters and online tools.
 				</h1>
 				<p className="w-full text-center">Lumotools helps you convert images, files, audio, and more.</p>
 			</div>

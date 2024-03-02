@@ -5,18 +5,20 @@ import { json2csv, csv2json } from "json-2-csv";
 import YAML from "yaml";
 import toWav from "audiobuffer-to-wav";
 import lamejs from "lamejs";
-import * as pdfjsLib from 'pdfjs-dist';
+import jsPDF from "jspdf";
+// import * as pdfjsLib from 'pdfjs-dist';
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
-import { fileConverters, fileTypes } from "@/lib/file-types";
+import { fileTypes } from "@/lib/file-types";
 import { UploadCloud, Download, Copy, Upload, Wand2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilePreview } from "@/components/elements/file-preview";
 
 import MPEGMode from "lamejs/src/js/MPEGMode";
-import Lame from 'lamejs/src/js/Lame';
-import BitStream from 'lamejs/src/js/BitStream';
+import Lame from "lamejs/src/js/Lame";
+import BitStream from "lamejs/src/js/BitStream";
+import { resolve } from "path";
 
 const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-csv": convertJSONtoCSV,
@@ -37,28 +39,45 @@ export function FileConverter({ converter }) {
 		if (file) {
 			let convertFunction = null;
 
-			if (converter.slug == "jpg-to-jpeg" || converter.slug == "jpeg-to-jpg") {
-				convertFunction = (file, toTypeId) => {
-					return new Promise((resolve, reject) => {
-						resolve(URL.createObjectURL(file));
-					});
-				};
-			} else {
-				switch (fromType.id) {
-					case "jpg":
-					case "jpeg":
-					case "png":
-					case "webp":
-					case "bmp":
-					case "avif":
-						convertFunction = convertImage;
-						break;
-					case "mp3":
-					case "wav":
-					case "ogg":
-					case "aac":
-						convertFunction = convertAudioFile;
-				}
+			switch (converter.alternativeTo || converter.slug) {
+				case "jpg-to-jpeg":
+				case "jpeg-to-jpg":
+					convertFunction = (file, toTypeId) => {
+						return new Promise((resolve, reject) => {
+							resolve(URL.createObjectURL(file));
+						});
+					};
+					break;
+				case "webp-to-jpg":
+				case "webp-to-png":
+				case "jpg-to-webp":
+				case "jpg-to-png":
+				case "png-to-webp":
+				case "png-to-jpg":
+				case "avif-to-webp":
+				case "avif-to-jpg":
+				case "avif-to-png":
+				case "bmp-to-webp":
+				case "bmp-to-jpg":
+				case "bmp-to-png":
+					convertFunction = convertImage;
+					break;
+				case "png-to-pdf":
+				case "jpg-to-pdf":
+				case "bmp-to-pdf":
+				case "gif-to-pdf":
+				case "webp-to-pdf":
+				case "avif-to-pdf":
+					convertFunction = convertImageToPDF;
+					break;
+				case "mp3-to-wav":
+				case "wav-to-mp3":
+				case "ogg-to-mp3":
+				case "ogg-to-wav":
+				case "aac-to-mp3":
+				case "aac-to-wav":
+					convertFunction = convertAudioFile;
+					break;
 			}
 
 			if (convertFunction) {
@@ -185,10 +204,10 @@ export function FileConverter({ converter }) {
 							<Download size={16} strokeWidth={2} className="mr-3" />
 							Download as {toType.name}
 						</Button>
-						<Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
+						{fromType.allowClipboard && <Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
 							<Copy size={16} strokeWidth={2} className="mr-3" />
 							Copy to Clipboard as {toType.name}
-						</Button>
+						</Button>}
 					</div>
 				) : null}
 			</div>
@@ -335,7 +354,11 @@ export function TextConverter({ converter }) {
 								</div>
 								<div className="flex-1 bg-zinc-100">
 									<Button ref={copyButtonRef} variant="tertiary" className="w-full" onClick={copyOutputToClipboard}>
-										{copiedState ? <Check size={16} strokeWidth={2} className="mr-3" /> : <Copy size={16} strokeWidth={2} className="mr-3" />}
+										{copiedState ? (
+											<Check size={16} strokeWidth={2} className="mr-3" />
+										) : (
+											<Copy size={16} strokeWidth={2} className="mr-3" />
+										)}
 										{copiedState ? "Copied" : "Copy to Clipboard"}
 									</Button>
 								</div>
@@ -479,6 +502,66 @@ async function convertAudioFile(file: File, toTypeId: string): Promise<string> {
 	} catch (error) {
 		throw error;
 	}
+}
+
+async function convertImageToPDF(file, toTypeId) {
+	return new Promise(async (resolve, reject) => {
+			const toType = fileTypes[toTypeId];
+
+			if (!toType) {
+					reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
+					return;
+			}
+
+			// Convert AVIF and WebP images to PNG for compatibility
+			let conversionNeeded = false;
+			let imageFormat = "JPEG"; // Default to JPEG
+			if (file.type === "image/png") {
+					imageFormat = "PNG";
+			} else if (file.type === "image/bmp") {
+					imageFormat = "BMP";
+			} else if (file.type === "image/gif") {
+					imageFormat = "GIF";
+			} else if (file.type === "image/avif" || file.type === "image/webp") {
+					conversionNeeded = true;
+					imageFormat = "PNG"; // Convert to PNG for compatibility
+			}
+
+			if (conversionNeeded) {
+					try {
+							const convertedImageURL = await convertImage(file, 'png'); // Assuming convertImage returns a Data URL
+							file = await fetch(convertedImageURL).then(r => r.blob()).then(blobFile => new File([blobFile], "converted_image.png", { type: "image/png" }));
+					} catch (error) {
+							reject(new Error("Error converting image"));
+							return;
+					}
+			}
+
+			const reader = new FileReader();
+			reader.onload = function (e) {
+					const img = new Image();
+					img.onload = function () {
+							const pdf = new jsPDF({
+									orientation: img.width > img.height ? "l" : "p",
+									unit: "px",
+									format: [img.width, img.height],
+							});
+							pdf.addImage(e.target.result, imageFormat, 0, 0, img.width, img.height);
+
+							const pdfBlob = pdf.output("blob");
+							const pdfUrl = URL.createObjectURL(pdfBlob);
+							resolve(pdfUrl);
+					};
+					img.onerror = function () {
+							reject(new Error("Error loading the image"));
+					};
+					img.src = e.target.result;
+			};
+			reader.onerror = function () {
+					reject(new Error("Error reading the file"));
+			};
+			reader.readAsDataURL(file);
+	});
 }
 
 function convertJSONtoCSV(input) {

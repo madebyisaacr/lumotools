@@ -8,19 +8,12 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
-import {
-	Menubar,
-	MenubarContent,
-	MenubarItem,
-	MenubarMenu,
-	MenubarTrigger,
-} from "@/components/ui/menubar";
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
 
 export default function Navbar() {
 	const convertersByType = {};
 	for (const converter of fileConverters) {
-		convertersByType[converter.types[0]] =
-			convertersByType[converter.types[0]] || [];
+		convertersByType[converter.types[0]] = convertersByType[converter.types[0]] || [];
 		convertersByType[converter.types[0]].push(converter);
 	}
 
@@ -36,48 +29,35 @@ export default function Navbar() {
 								})
 							)}
 						>
-							<span className="font-semibold text-base">
-								Lumotools
-							</span>
+							<span className="font-semibold text-base">Lumotools</span>
 						</div>
 					</Link>
 				</nav>
 				<Menubar className="bg-transparent border-none">
 					{Object.keys(fileCategories).map((categoryName, index) => (
-							<MenubarMenu key={index}>
-								<MenubarTrigger>
-									{fileCategories[categoryName].name} Converters
-									<ChevronDown size={14} className="ml-1" />
-								</MenubarTrigger>
-								<MenubarContent>
-									{fileConverters
+						<MenubarMenu key={index}>
+							<MenubarTrigger>
+								{fileCategories[categoryName].name} Converters
+								<ChevronDown size={14} className="ml-1" />
+							</MenubarTrigger>
+							<MenubarContent>
+								{fileConverters
 									.filter((converter) => fileTypes[converter.types[0]].category == categoryName && !converter.alternativeTo)
 									.map((converter, index) => {
-											const fromType =
-												fileTypes[converter.types[0]];
-											const toType =
-												fileTypes[converter.types[1]];
+										const fromType = fileTypes[converter.types[0]];
+										const toType = fileTypes[converter.types[1]];
 
-											return (
-												<MenubarItem
-													key={index}
-													className="p-0"
-												>
-													<a
-														href={`/convert/${converter.slug}`}
-														className="px-2 py-1.5"
-													>
-														{fromType.name} to{" "}
-														{toType.name}
-													</a>
-												</MenubarItem>
-											);
-										}
-									)}
-								</MenubarContent>
-							</MenubarMenu>
-						)
-					)}
+										return (
+											<MenubarItem key={index} className="p-0">
+												<a href={`/convert/${converter.slug}`} className="px-2 py-1.5 w-full">
+													{fromType.name} to {toType.name}
+												</a>
+											</MenubarItem>
+										);
+									})}
+							</MenubarContent>
+						</MenubarMenu>
+					))}
 				</Menubar>
 			</div>
 		</header>
