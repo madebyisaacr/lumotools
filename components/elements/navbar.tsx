@@ -29,6 +29,22 @@ export default function Navbar() {
 								})
 							)}
 						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="mr-1.5">
+								<path
+									stroke="#000"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M2 6V4c0-1.1.9-2 2-2h2M18 2h2c1.1 0 2 .9 2 2v2M22 18v2c0 1.1-.9 2-2 2h-2M6 22H4c-1.1 0-2-.9-2-2v-2M18 9.333a1.333 1.333 0 00-.667-1.153l-4.666-2.667a1.334 1.334 0 00-1.334 0L6.667 8.18A1.333 1.333 0 006 9.333v5.334a1.333 1.333 0 00.667 1.153l4.666 2.667a1.334 1.334 0 001.334 0l4.666-2.667A1.333 1.333 0 0018 14.667V9.333z"
+								></path>
+								<path
+									stroke="#000"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M6.2 8.667L12 12l5.8-3.333M12 18.667V12"
+								></path>
+							</svg>
 							<span className="font-semibold text-base">Lumotools</span>
 						</div>
 					</Link>
@@ -36,7 +52,7 @@ export default function Navbar() {
 				<Menubar className="bg-transparent border-none max-sm:hidden">
 					{Object.keys(fileCategories).map((categoryName, index) => (
 						<MenubarMenu key={index}>
-							<MenubarTrigger>
+							<MenubarTrigger className="cursor-pointer">
 								<span className="max-lg:hidden">{fileCategories[categoryName].name}&nbsp;Converters</span>
 								<span className="lg:hidden">{fileCategories[categoryName].namePlural}</span>
 								<ChevronDown size={14} className="ml-1" />

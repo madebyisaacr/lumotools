@@ -200,7 +200,7 @@ export const fileTypes = {
 		description:
 			"PDF files are a type of document file format created by Adobe that allows users to present and exchange documents reliably, independent of software, hardware, or operating system.",
 		category: "document",
-		accentColor: "#FF3708",
+		accentColor: "#d1152e",
 		icon: "text",
 	},
 	rtf: {

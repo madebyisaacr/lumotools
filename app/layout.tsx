@@ -18,6 +18,7 @@ export default function RootLayout({
 		<html lang="en" className="">
 			<head>
 				<script defer data-domain="lumotools.com" src="https://plausible.io/js/script.js" />
+				<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 			</head>
 			<body className="pt-14">
 				<Navbar />
