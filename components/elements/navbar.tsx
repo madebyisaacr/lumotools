@@ -49,7 +49,7 @@ export default function Navbar() {
 
 										return (
 											<MenubarItem key={index} className="p-0">
-												<a href={`/convert/${converter.slug}`} className="px-2 py-1.5 w-full">
+												<a href={`/convert/${converter.slug}`} className="px-2 py-1.5 w-full font-medium">
 													{fromType.name} to {toType.name}
 												</a>
 											</MenubarItem>

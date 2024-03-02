@@ -6,7 +6,6 @@ import YAML from "yaml";
 import toWav from "audiobuffer-to-wav";
 import lamejs from "lamejs";
 import jsPDF from "jspdf";
-// import * as pdfjsLib from 'pdfjs-dist';
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
@@ -18,7 +17,6 @@ import { FilePreview } from "@/components/elements/file-preview";
 import MPEGMode from "lamejs/src/js/MPEGMode";
 import Lame from "lamejs/src/js/Lame";
 import BitStream from "lamejs/src/js/BitStream";
-import { resolve } from "path";
 
 const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-csv": convertJSONtoCSV,
@@ -204,10 +202,12 @@ export function FileConverter({ converter }) {
 							<Download size={16} strokeWidth={2} className="mr-3" />
 							Download as {toType.name}
 						</Button>
-						{fromType.allowClipboard && <Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
-							<Copy size={16} strokeWidth={2} className="mr-3" />
-							Copy to Clipboard as {toType.name}
-						</Button>}
+						{fromType.allowClipboard && (
+							<Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
+								<Copy size={16} strokeWidth={2} className="mr-3" />
+								Copy to Clipboard as {toType.name}
+							</Button>
+						)}
 					</div>
 				) : null}
 			</div>
@@ -504,63 +504,65 @@ async function convertAudioFile(file: File, toTypeId: string): Promise<string> {
 	}
 }
 
-async function convertImageToPDF(file, toTypeId) {
+async function convertImageToPDF(file: File, toTypeId: string): Promise<string> {
 	return new Promise(async (resolve, reject) => {
-			const toType = fileTypes[toTypeId];
+		const toType = fileTypes[toTypeId];
 
-			if (!toType) {
-					reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
-					return;
+		if (!toType) {
+			reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
+			return;
+		}
+
+		// Convert AVIF and WebP images to PNG for compatibility
+		let conversionNeeded = false;
+		let imageFormat = "JPEG"; // Default to JPEG
+		if (file.type === "image/png") {
+			imageFormat = "PNG";
+		} else if (file.type === "image/bmp") {
+			imageFormat = "BMP";
+		} else if (file.type === "image/gif") {
+			imageFormat = "GIF";
+		} else if (file.type === "image/avif" || file.type === "image/webp") {
+			conversionNeeded = true;
+			imageFormat = "PNG"; // Convert to PNG for compatibility
+		}
+
+		if (conversionNeeded) {
+			try {
+				const convertedImageURL = await convertImage(file, "png"); // Assuming convertImage returns a Data URL
+				file = await fetch(convertedImageURL as string)
+					.then((r) => r.blob())
+					.then((blobFile) => new File([blobFile], "converted_image.png", { type: "image/png" }));
+			} catch (error) {
+				reject(new Error("Error converting image"));
+				return;
 			}
+		}
 
-			// Convert AVIF and WebP images to PNG for compatibility
-			let conversionNeeded = false;
-			let imageFormat = "JPEG"; // Default to JPEG
-			if (file.type === "image/png") {
-					imageFormat = "PNG";
-			} else if (file.type === "image/bmp") {
-					imageFormat = "BMP";
-			} else if (file.type === "image/gif") {
-					imageFormat = "GIF";
-			} else if (file.type === "image/avif" || file.type === "image/webp") {
-					conversionNeeded = true;
-					imageFormat = "PNG"; // Convert to PNG for compatibility
-			}
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			const img = new Image();
+			img.onload = function () {
+				const pdf = new jsPDF({
+					orientation: img.width > img.height ? "l" : "p",
+					unit: "px",
+					format: [img.width, img.height],
+				});
+				pdf.addImage(e.target.result as string, imageFormat, 0, 0, img.width, img.height);
 
-			if (conversionNeeded) {
-					try {
-							const convertedImageURL = await convertImage(file, 'png'); // Assuming convertImage returns a Data URL
-							file = await fetch(convertedImageURL as string).then(r => r.blob()).then(blobFile => new File([blobFile], "converted_image.png", { type: "image/png" }));
-					} catch (error) {
-							reject(new Error("Error converting image"));
-							return;
-					}
-			}
-
-			const reader = new FileReader();
-			reader.onload = function (e) {
-					const img = new Image();
-					img.onload = function () {
-							const pdf = new jsPDF({
-									orientation: img.width > img.height ? "l" : "p",
-									unit: "px",
-									format: [img.width, img.height],
-							});
-							pdf.addImage(e.target.result as string, imageFormat, 0, 0, img.width, img.height);
-
-							const pdfBlob = pdf.output("blob");
-							const pdfUrl = URL.createObjectURL(pdfBlob);
-							resolve(pdfUrl);
-					};
-					img.onerror = function () {
-							reject(new Error("Error loading the image"));
-					};
-					img.src = e.target.result as string;
+				const pdfBlob = pdf.output("blob");
+				const pdfUrl = URL.createObjectURL(pdfBlob);
+				resolve(pdfUrl);
 			};
-			reader.onerror = function () {
-					reject(new Error("Error reading the file"));
+			img.onerror = function () {
+				reject(new Error("Error loading the image"));
 			};
-			reader.readAsDataURL(file);
+			img.src = e.target.result as string;
+		};
+		reader.onerror = function () {
+			reject(new Error("Error reading the file"));
+		};
+		reader.readAsDataURL(file);
 	});
 }
 
