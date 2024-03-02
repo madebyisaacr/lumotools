@@ -17,6 +17,7 @@
     "audiobuffer-to-wav": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "gif.js": "^0.2.0",
     "json-2-csv": "^5.0.1",
     "jspdf": "^2.5.1",
     "lamejs": "^1.2.1",

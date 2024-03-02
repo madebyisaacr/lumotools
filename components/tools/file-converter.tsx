@@ -6,11 +6,12 @@ import YAML from "yaml";
 import toWav from "audiobuffer-to-wav";
 import lamejs from "lamejs";
 import jsPDF from "jspdf";
+import GIF from "gif.js";
 
 import { cn } from "@/lib/utils";
 import { fragmentMono } from "@/lib/fonts";
 import { fileTypes } from "@/lib/file-types";
-import { UploadCloud, Download, Copy, Upload, Wand2, Check } from "lucide-react";
+import { FileUp, Download, Copy, Upload, Wand2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilePreview } from "@/components/elements/file-preview";
 
@@ -67,6 +68,13 @@ export function FileConverter({ converter }) {
 				case "webp-to-pdf":
 				case "avif-to-pdf":
 					convertFunction = convertImageToPDF;
+					break;
+				case "png-to-gif":
+				case "jpg-to-gif":
+				case "bmp-to-gif":
+				case "webp-to-gif":
+				case "avif-to-gif":
+					convertFunction = convertImageToGIF;
 					break;
 				case "mp3-to-wav":
 				case "wav-to-mp3":
@@ -187,7 +195,7 @@ export function FileConverter({ converter }) {
 						</>
 					) : (
 						<div className="bg-primary size-24 flex items-center justify-center rounded-full">
-							<UploadCloud size={48} strokeWidth={2} color="white" />
+							<FileUp size={48} strokeWidth={2} color="white" />
 						</div>
 					)}
 					<div />
@@ -575,6 +583,65 @@ async function convertImageToPDF(file: File, toTypeId: string): Promise<string> 
 			reject(new Error("Error reading the file"));
 		};
 		reader.readAsDataURL(file);
+	});
+}
+
+async function convertImageToGIF(file: File, toTypeId: string): Promise<string> {
+	return new Promise(async (resolve, reject) => {
+		const toType = fileTypes[toTypeId];
+
+		if (!toType) {
+			reject(new Error(`"${toTypeId}" is not a valid file type. Please try again with a different file type.`));
+			return;
+		}
+
+		// Ensure the file is an image
+		if (!file.type.startsWith("image/")) {
+			reject("File is not an image");
+			return;
+		}
+
+		try {
+			// Convert image file to ImageBitmap
+			const imageBitmap = await createImageBitmap(file);
+
+			// Create a canvas and draw the image on it
+			const canvas = document.createElement("canvas");
+			const ctx = canvas.getContext("2d");
+			canvas.width = imageBitmap.width;
+			canvas.height = imageBitmap.height;
+			ctx.drawImage(imageBitmap, 0, 0);
+
+			// Use gif.js to create a GIF
+			const gif = new GIF({
+				workers: 2,
+				quality: 10,
+				width: canvas.width,
+				height: canvas.height,
+				workerScript: "/scripts/gif.worker.js",
+			});
+
+			// Add the canvas as a frame
+			gif.addFrame(ctx, { copy: true, delay: 200 });
+
+			// When GIF is rendered
+			gif.on("finished", function (blob) {
+				// Convert blob to a data URL
+				const reader = new FileReader();
+				reader.onload = function () {
+					resolve(reader.result.toString());
+				};
+				reader.onerror = function (error) {
+					reject("Error image to GIF: " + error);
+				};
+				reader.readAsDataURL(blob);
+			});
+
+			// Render the GIF
+			gif.render();
+		} catch (error) {
+			reject("Error converting image to GIF: " + error);
+		}
 	});
 }
 

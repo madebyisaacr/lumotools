@@ -247,6 +247,7 @@ let baseFileConverters: any[] = [
 	{ types: ["json", "yaml"], component: "text" },
 	{ types: ["csv", "json"], component: "text" },
 	{ types: ["yaml", "json"], component: "text" },
+
 	// Image
 	{ types: ["webp", "jpg"], component: "file" },
 	{ types: ["webp", "png"], component: "file" },
@@ -268,8 +269,16 @@ let baseFileConverters: any[] = [
 	{ types: ["gif", "pdf"], component: "file" },
 	{ types: ["webp", "pdf"], component: "file" },
 	{ types: ["avif", "pdf"], component: "file" },
+	{ types: ["png", "gif"], component: "file" },
+	{ types: ["jpg", "gif"], component: "file" },
+	{ types: ["bmp", "gif"], component: "file" },
+	{ types: ["webp", "gif"], component: "file" },
+	{ types: ["avif", "gif"], component: "file" },
+
 	// Document
 	{ types: ["rtf", "txt"], component: "text" },
+	{ types: ["txt", "csv"], component: "text" },
+
 	// Audio
 	{ types: ["mp3", "wav"], component: "file" },
 	{ types: ["wav", "mp3"], component: "file" },
