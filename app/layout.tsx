@@ -21,9 +21,14 @@ export default function RootLayout({
 			</head>
 			<body className="pt-14">
 				<Navbar />
-				<main className="flex flex-row p-10 pt-14 w-full justify-center">
+				<main className="flex flex-row p-10 pt-14 max-sm:p-5 max-sm:pt-12 w-full justify-center">
 					<div className="flex flex-col items-center w-full ">{children}</div>
 				</main>
+				<footer className="flex flex-col items-center w-full pb-5 px-10 max-sm:px-5">
+					<p className="text-sm text-zinc-500 w-full max-w-5xl">
+						© {new Date().getFullYear()} Framestack LLC
+					</p>
+				</footer>
 			</body>
 		</html>
 	);

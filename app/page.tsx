@@ -4,7 +4,7 @@ export default function Home() {
 	return (
 		<div className="flex flex-col gap-16 w-full max-w-5xl">
 			<div className="flex flex-col gap-6">
-				<h1 className="text-5xl font-semibold w-full text-center text-balance">
+				<h1 className="text-5xl max-sm:text-4xl font-semibold w-full text-center text-balance">
 					Free file converters and online tools.
 				</h1>
 				<p className="w-full text-center">Lumotools helps you convert images, files, audio, and more.</p>
@@ -16,7 +16,7 @@ export default function Home() {
 							<h2 className="text-2xl font-semibold w-full">{fileCategories[categoryName].name} Converters</h2>
 							<p className="w-full text-sm line-clamp-2 text-ellipsis opacity-60">{fileCategories[categoryName].description}</p>
 							<div className="h-2" />
-							<div className="grid grid-cols-4 gap-3">
+							<div className="grid grid-cols-4 max-md:grid-cols-3 max-sm:grid-cols-2 max-[350px]:grid-cols-1 gap-3">
 								{fileConverters
 									.filter((converter) => fileTypes[converter.types[0]].category == categoryName && !converter.alternativeTo)
 									.map((converter, index) => {

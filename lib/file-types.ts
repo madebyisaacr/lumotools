@@ -13,20 +13,24 @@ export const alternativeFileTypes = {
 export const fileCategories = {
 	data: {
 		name: "Data File",
+		namePlural: "Data Files",
 		description: "Convert between text-based file formats, such as JSON, CSV, XML, and more, to manage and transform your data.",
 	},
 	image: {
 		name: "Image",
+		namePlural: "Images",
 		description:
 			"Convert between popular image formats, such as WebP, JPG, PNG, and more, to optimize your images for the web and other uses.",
 	},
 	document: {
 		name: "Document",
+		namePlural: "Documents",
 		description:
 			"Convert between popular document formats, such as PDF, RTF, and more, to manage and transform your documents.",
 	},
 	audio: {
 		name: "Audio",
+		namePlural: "Audio",
 		description:
 			"Convert between audio file formats, such as MP3, WAV, OGG, and more, to optimize your audio for streaming and storage.",
 	},

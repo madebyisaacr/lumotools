@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { fileTypes, fileConverters, fileConverterSlugs } from "@/lib/file-types";
 import {FileConverter, TextConverter} from "@/components/tools/file-converter";
 
@@ -45,7 +43,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 	return (
 		<div className="w-full flex flex-col gap-12 items-center">
 			<div className="flex flex-col gap-4 items-center w-full">
-				<h1 className="text-5xl font-semibold w-full text-center">
+				<h1 className="text-5xl font-semibold w-full text-center max-md:text-4xl">
 					Free {fromType.name} to {toType.name} Converter
 				</h1>
 				<p className="w-full text-center">
@@ -53,7 +51,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 				</p>
 			</div>
 			<ConverterComponent converter={converter} />
-			<div className="flex flex-row gap-4 w-full max-w-5xl">
+			<div className="flex flex-row gap-4 w-full max-w-5xl max-md:flex-col">
 				<div className="flex flex-col gap-4 p-6 bg-zinc-100 flex-1 rounded-lg border border-zinc-200">
 					<h2 className="text-xl font-semibold">About {fromType.name} Files</h2>
 					<p>{fromType.description}</p>

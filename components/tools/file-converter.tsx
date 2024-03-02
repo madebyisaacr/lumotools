@@ -223,6 +223,7 @@ export function TextConverter({ converter }) {
 	const [fileName, setFileName] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 	const [copiedState, setCopiedState] = useState(false);
+	const [hasInput, setHasInput] = useState(false);
 
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const copyButtonRef = useRef<HTMLButtonElement>(null);
@@ -247,6 +248,7 @@ export function TextConverter({ converter }) {
 					if (inputRef.current) {
 						inputRef.current.value = event.target.result as string;
 						invalidateOutput();
+						setHasInput(true);
 					}
 				};
 				reader.readAsText(file);
@@ -279,6 +281,15 @@ export function TextConverter({ converter }) {
 		setTimeout(() => setCopiedState(false), 2000);
 	}
 
+	function onInputChange(event) {
+		setOutput("");
+		setHasInput(event.target.value.length > 0);
+
+		if (event.target.value.length == 0) {
+			setFileName("");
+		}
+	}
+
 	useEffect(() => {
 		// Handle file drop
 		const handleDrop = (e) => {
@@ -294,6 +305,7 @@ export function TextConverter({ converter }) {
 						if (inputRef.current) {
 							inputRef.current.value = event.target.result as string;
 							invalidateOutput();
+							setHasInput(true);
 						}
 					};
 					reader.readAsText(file);
@@ -316,7 +328,7 @@ export function TextConverter({ converter }) {
 	}, []);
 
 	return (
-		<div className="flex flex-row w-full gap-4 h-[550px]">
+		<div className="flex flex-row w-full gap-4 h-[550px] max-md:h-[900px] max-md:flex-col">
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-row gap-3 justify-between items-center px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">
 					<span className="font-semibold">{fromType.name} Input</span>
@@ -327,7 +339,7 @@ export function TextConverter({ converter }) {
 						ref={inputRef}
 						className={cn("flex-1 p-4 pb-20 bg-transparent resize-none text-sm", fragmentMono.className)}
 						placeholder={`Type ${fromType.name} here, drag-and-drop file, or copy-and-paste...`}
-						onChange={(event) => setOutput("")}
+						onChange={onInputChange}
 					/>
 					<div className="absolute bottom-4 left-4 right-4 flex flex-row flex-wrap justify-center gap-3">
 						<Button className="flex-1" onClick={uploadFile}>
@@ -366,7 +378,7 @@ export function TextConverter({ converter }) {
 						</>
 					) : (
 						<div className="w-full h-full flex flex-col gap-4 p-4 items-center justify-center">
-							<Button className="w-fit" onClick={convertFile}>
+							<Button className={`w-fit ${hasInput ? "opacity-100" : "opacity-50"}`} onClick={convertFile}>
 								<Wand2 size={16} strokeWidth={2} className="mr-3" />
 								Convert to {toType.name}
 							</Button>
