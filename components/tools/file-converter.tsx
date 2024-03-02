@@ -530,7 +530,7 @@ async function convertImageToPDF(file, toTypeId) {
 			if (conversionNeeded) {
 					try {
 							const convertedImageURL = await convertImage(file, 'png'); // Assuming convertImage returns a Data URL
-							file = await fetch(convertedImageURL).then(r => r.blob()).then(blobFile => new File([blobFile], "converted_image.png", { type: "image/png" }));
+							file = await fetch(convertedImageURL as string).then(r => r.blob()).then(blobFile => new File([blobFile], "converted_image.png", { type: "image/png" }));
 					} catch (error) {
 							reject(new Error("Error converting image"));
 							return;
@@ -546,7 +546,7 @@ async function convertImageToPDF(file, toTypeId) {
 									unit: "px",
 									format: [img.width, img.height],
 							});
-							pdf.addImage(e.target.result, imageFormat, 0, 0, img.width, img.height);
+							pdf.addImage(e.target.result as string, imageFormat, 0, 0, img.width, img.height);
 
 							const pdfBlob = pdf.output("blob");
 							const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -555,7 +555,7 @@ async function convertImageToPDF(file, toTypeId) {
 					img.onerror = function () {
 							reject(new Error("Error loading the image"));
 					};
-					img.src = e.target.result;
+					img.src = e.target.result as string;
 			};
 			reader.onerror = function () {
 					reject(new Error("Error reading the file"));
