@@ -1,17 +1,5 @@
 import { fileTypes } from "@/lib/file-types";
-import {
-	Image,
-	Volume2,
-	Video,
-	Type,
-	Table2,
-	Braces,
-	Text,
-	Code2,
-	ListTree,
-	AudioWaveform,
-	Images,
-} from "lucide-react";
+import { Image, Volume2, Video, Type, Table2, Braces, Text, Code2, ListTree, AudioWaveform, Images } from "lucide-react";
 
 const icons = {
 	image: Image,
@@ -27,7 +15,7 @@ const icons = {
 	waveform: AudioWaveform,
 };
 
-export function FileIcon({ type, size = 100 }) {
+export function FileIcon({ type, size = 100, hideText = false }) {
 	const fileType = fileTypes[type];
 	const Icon = icons[fileType.icon];
 
@@ -46,12 +34,14 @@ export function FileIcon({ type, size = 100 }) {
 				className="bg-white/20 absolute right-0"
 				style={{ width: (size / 1.2) * 0.3, height: (size / 1.2) * 0.3, borderBottomLeftRadius: (12 * size) / 120 }}
 			/>
-			<span
-				className="font-bold text-white absolute top-[4%] left-[36%] select-none"
-				style={{ translate: "-50% 0", fontSize: (size / 120) * 20 }}
-			>
-				{type == "markdown" ? "MD" : fileType.name}
-			</span>
+			{hideText ? null : (
+				<span
+					className="font-bold text-white absolute top-[4%] left-[36%] select-none"
+					style={{ translate: "-50% 0", fontSize: (size / 120) * 20 }}
+				>
+					{type == "markdown" ? "MD" : fileType.name}
+				</span>
+			)}
 			{Icon && (
 				<Icon
 					color="white"

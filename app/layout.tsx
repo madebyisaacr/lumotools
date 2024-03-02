@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-import { cn } from "@/lib/utils";
 import Navbar from "@/components/elements/navbar";
 
 export const metadata: Metadata = {
-	title: "Lumotools",
-	description: "Free, simple file converters and online utilities. Lumotools helps you convert images, files, and more.",
+	title: "Lumotools - Free file converters and online tools.",
+	description: "Convert images, files, audio, and more with free online tools and file converters.",
 };
 
 export default function RootLayout({

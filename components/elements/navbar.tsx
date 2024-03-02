@@ -19,9 +19,9 @@ export default function Navbar() {
 
 	return (
 		<header className="fixed top-0 left-0 right-0 flex justify-center z-50 bg-zinc-100 border-b border-zinc-200">
-			<div className="w-full px-6 max-sm:px-1 flex justify-between h-14 max-w-screen-2xl items-center">
-				<nav className="flex items-center">
-					<Link href="/">
+			<div className="w-full px-6 flex justify-between h-14 max-w-screen-2xl items-center">
+				<nav className="flex items-center max-sm:w-full">
+					<Link href="/" className="w-full flex flex-row justify-center items-center">
 						<div
 							className={cn(
 								buttonVariants({
@@ -29,21 +29,18 @@ export default function Navbar() {
 								})
 							)}
 						>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="mr-1.5">
+							<svg width="24" height="24" viewBox="0 3 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
 								<path
-									stroke="#000"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M2 6V4c0-1.1.9-2 2-2h2M18 2h2c1.1 0 2 .9 2 2v2M22 18v2c0 1.1-.9 2-2 2h-2M6 22H4c-1.1 0-2-.9-2-2v-2M18 9.333a1.333 1.333 0 00-.667-1.153l-4.666-2.667a1.334 1.334 0 00-1.334 0L6.667 8.18A1.333 1.333 0 006 9.333v5.334a1.333 1.333 0 00.667 1.153l4.666 2.667a1.334 1.334 0 001.334 0l4.666-2.667A1.333 1.333 0 0018 14.667V9.333z"
-								></path>
+									d="M0 11.2426C0 10.447 0.316071 9.68393 0.87868 9.12132L5.58579 4.41421C6.36684 3.63316 7.63316 3.63317 8.41421 4.41421L14 10V22H3C1.34315 22 0 20.6569 0 19V11.2426Z"
+									fill="black"
+								/>
 								<path
-									stroke="#000"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M6.2 8.667L12 12l5.8-3.333M12 18.667V12"
-								></path>
+									fillRule="evenodd"
+									clipRule="evenodd"
+									d="M18.4142 4.4142L22 8.00002L14.8284 8.00002L13.4142 6.58581L15.5858 4.41423C16.3668 3.63318 17.6331 3.63315 18.4142 4.4142Z"
+									fill="black"
+								/>
+								<path d="M16 10H22C23.1046 10 24 10.8954 24 12V19C24 20.6569 22.6569 22 21 22H16V10Z" fill="black" />
 							</svg>
 							<span className="font-semibold text-base">Lumotools</span>
 						</div>
