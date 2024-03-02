@@ -174,7 +174,7 @@ export function FileConverter({ converter }) {
 				<input
 					ref={fileInputRef}
 					type="file"
-					id="image"
+					id="fileUpload"
 					accept={fromType.extensions.map((item) => "." + item).join(", ")}
 					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 					onChange={handleFileChange}
@@ -191,7 +191,7 @@ export function FileConverter({ converter }) {
 						</div>
 					)}
 					<div />
-					<label>
+					<label htmlFor="fileUpload" className="w-full text-center text-balance">
 						Click to upload {fromType.name} {fromType.titles[0]}
 						{fromType.allowClipboard ? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.` : " or drag-and-drop."}
 					</label>
