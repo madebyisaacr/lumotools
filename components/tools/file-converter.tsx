@@ -25,6 +25,8 @@ const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"json-to-yaml": convertJSONtoYAML,
 	"yaml-to-json": convertYAMLtoJSON,
 	"rtf-to-txt": convertRTFtoTXT,
+	"csv-to-tsv": convertCSVtoTSV,
+	"tsv-to-csv": convertTSVtoCSV,
 };
 
 export function FileConverter({ converter }) {
@@ -669,6 +671,75 @@ function convertRTFtoTXT(input) {
 	let rtf = input.replace(/\\par[d]?/g, "");
 	rtf = rtf.replace(/\{\*?\\[^{}]+}|[{}]|\\\n?[A-Za-z]+\n?(?:-?\d+)?[ ]?/g, "");
 	return rtf.replace(/\\'[0-9a-zA-Z]{2}/g, "").trim();
+}
+
+function convertCSVtoTSV(input) {
+	// Function to parse CSV line considering commas inside quotes and unescaping double quotes
+	function parseCsvLine(line) {
+		const result = [];
+		let startValueIdx = 0;
+		let insideQuote = false;
+		let currentValue = "";
+
+		for (let i = 0; i < line.length; i++) {
+			// Toggle insideQuote flag when a double-quote is encountered
+			if (line[i] === '"') {
+				if (insideQuote && line[i + 1] === '"') {
+					// If the next character is also a quote, add a single quote to the currentValue and skip the next quote
+					currentValue += '"';
+					i++; // Skip the next quote
+				} else {
+					insideQuote = !insideQuote;
+				}
+			} else if (line[i] === "," && !insideQuote) {
+				// If not inside quotes and a comma is encountered, push the current value to the result array
+				result.push(currentValue);
+				currentValue = ""; // Reset currentValue for the next value
+				startValueIdx = i + 1; // Move start index to the character after the comma
+			} else {
+				// Add current character to the currentValue
+				currentValue += line[i];
+			}
+		}
+
+		// Add the last value
+		result.push(currentValue);
+
+		return result;
+	}
+
+	// Convert CSV line to TSV line
+	function csvLineToTsvLine(line) {
+		const values = parseCsvLine(line);
+		// Join the values with a tab and unescape properly
+		return values.map((value) => value.replace(/^"|"$/g, "").replace(/""/g, '"')).join("\t");
+	}
+
+	// Split the input into lines and convert each
+	return input.split("\n").map(csvLineToTsvLine).join("\n");
+}
+
+function convertTSVtoCSV(input) {
+	// Function to quote and escape a field if necessary
+	function quoteAndEscapeField(field) {
+		if (field.includes(",") || field.includes("\n") || field.includes('"')) {
+			// Escape double quotes
+			field = field.replace(/"/g, '""');
+			// Quote the field
+			field = `"${field}"`;
+		}
+		return field;
+	}
+
+	// Convert TSV line to CSV line
+	function tsvLineToCsvLine(line) {
+		const values = line.split("\t");
+		// Quote and escape necessary fields, then join with commas
+		return values.map(quoteAndEscapeField).join(",");
+	}
+
+	// Split the input into lines and convert each
+	return input.split("\n").map(tsvLineToCsvLine).join("\n");
 }
 
 function downloadFile(url, fileName) {

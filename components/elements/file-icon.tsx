@@ -1,5 +1,18 @@
 import { fileTypes } from "@/lib/file-types";
-import { Image, Volume2, Video, Type, Table2, Braces, Text, Code2, ListTree, AudioWaveform, Images } from "lucide-react";
+import {
+	Image,
+	Volume2,
+	Video,
+	Type,
+	Table2,
+	Braces,
+	Text,
+	Code2,
+	ListTree,
+	AudioWaveform,
+	Images,
+	TableProperties,
+} from "lucide-react";
 
 const icons = {
 	image: Image,
@@ -13,6 +26,7 @@ const icons = {
 	code: Code2,
 	listTree: ListTree,
 	waveform: AudioWaveform,
+	tableProperties: TableProperties,
 };
 
 export function FileIcon({ type, size = 100, hideText = false }) {

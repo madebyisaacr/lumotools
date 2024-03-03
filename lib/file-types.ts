@@ -101,6 +101,16 @@ export const fileTypes = {
 		accentColor: "#1f9459",
 		icon: "table",
 	},
+	tsv: {
+		name: "TSV",
+		extensions: ["tsv"],
+		titles: TITLES.file,
+		mimeType: "text/tab-separated-values",
+		description: "TSV files are text files used for storing data in a tab-separated format, where each field is separated by a tab and each row is represented by a new line.",
+		category: "data",
+		accentColor: "#11729c",
+		icon: "tableProperties",
+	},
 	markdown: {
 		name: "Markdown",
 		extensions: ["md", "markdown", "txt"],
@@ -287,7 +297,9 @@ let baseFileConverters: any[] = [
 	{ types: ["json", "yaml"], component: "text" },
 	{ types: ["csv", "json"], component: "text" },
 	{ types: ["yaml", "json"], component: "text" },
-
+	{ types: ["csv", "tsv"], component: "text" },
+	{ types: ["tsv", "csv"], component: "text" },
+	
 	// Image
 	{ types: ["webp", "jpg"], component: "file" },
 	{ types: ["webp", "png"], component: "file" },
