@@ -12,6 +12,7 @@ import {
 	AudioWaveform,
 	Images,
 	TableProperties,
+	SquareUserRound,
 } from "lucide-react";
 
 const icons = {
@@ -27,6 +28,7 @@ const icons = {
 	listTree: ListTree,
 	waveform: AudioWaveform,
 	tableProperties: TableProperties,
+	user: SquareUserRound,
 };
 
 export function FileIcon({ type, size = 100, hideText = false }) {

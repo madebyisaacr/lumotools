@@ -8,6 +8,7 @@ const TITLES = {
 export const alternativeFileTypes = {
 	jpg: "jpeg",
 	yaml: "yml",
+	vcf: "vcard",
 };
 
 export const fileCategories = {
@@ -278,6 +279,28 @@ export const fileTypes = {
 		accentColor: "#fc9403",
 		icon: "audio",
 	},
+	vcf: {
+		name: "VCF",
+		extensions: ["vcf", "vcard"],
+		titles: TITLES.file,
+		mimeType: "text/vcard",
+		description:
+			"VCF files are digital files in the vCard format, used for storing contact information such as names, addresses, phone numbers, and email addresses, which can be exchanged and imported into contact management and email programs.",
+		category: "data",
+		accentColor: "#007bff",
+		icon: "user",
+	},
+	vcard: {
+		name: "vCard",
+		extensions: ["vcf", "vcard"],
+		titles: TITLES.file,
+		mimeType: "text/vcard",
+		description:
+			"vCard files are digital contact cards that store personal information such as names, addresses, phone numbers, and email addresses in a standardized format for sharing and importing into contact management applications.",
+		category: "data",
+		accentColor: "#007bff",
+		icon: "user",
+	}
 };
 
 // Add IDs and default values to file types
