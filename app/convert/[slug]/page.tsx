@@ -65,7 +65,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
 	return (
 		<div className="w-full flex flex-col gap-12 items-center">
-			<Script type="application/ld+json" strategy="beforeInteractive">
+			<Script id="schema" type="application/ld+json" strategy="beforeInteractive">
 				{JSON.stringify(schema)}
 			</Script>
 			<div className="flex flex-col gap-4 items-center w-full">

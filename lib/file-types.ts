@@ -25,8 +25,7 @@ export const fileCategories = {
 	document: {
 		name: "Document",
 		namePlural: "Documents",
-		description:
-			"Convert between popular document formats, such as PDF, RTF, and more, to manage and transform your documents.",
+		description: "Convert between popular document formats, such as PDF, RTF, and more, to manage and transform your documents.",
 	},
 	audio: {
 		name: "Audio",
@@ -318,7 +317,6 @@ let baseFileConverters: any[] = [
 
 	// Document
 	{ types: ["rtf", "txt"], component: "text" },
-	{ types: ["txt", "csv"], component: "text" },
 
 	// Audio
 	{ types: ["mp3", "wav"], component: "file" },
