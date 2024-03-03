@@ -1,6 +1,7 @@
 import { fileTypes, fileConverters, fileCategories } from "@/lib/file-types";
 import { FileIcon } from "@/components/elements/file-icon";
 import { ChevronRight } from "lucide-react";
+import ChecklistItem from "@/components/elements/checklist-item";
 
 export default function Home() {
 	return (
@@ -10,6 +11,12 @@ export default function Home() {
 					Free file converters and online tools.
 				</h1>
 				<p className="w-full text-center">Lumotools helps you convert images, files, audio, and more.</p>
+				<div className="flex flex-row gap-x-8 gap-y-4 w-full flex-wrap justify-center pt-2 items-center">
+					<ChecklistItem>No limits</ChecklistItem>
+					<ChecklistItem>No paywalls</ChecklistItem>
+					<ChecklistItem>No account required</ChecklistItem>
+					<ChecklistItem>100% secure with on-device file conversion</ChecklistItem>
+				</div>
 			</div>
 			<div className="flex flex-col gap-y-16">
 				{Object.keys(fileCategories).map((categoryName, index) => {

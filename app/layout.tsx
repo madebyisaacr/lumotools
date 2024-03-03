@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/elements/navbar";
 
 export const metadata: Metadata = {
-	title: "Lumotools - Free file converters and online tools.",
+	title: "Lumotools - Free file converters and online tools",
 	description: "Convert images, files, audio, and more with free online tools and file converters.",
 };
 

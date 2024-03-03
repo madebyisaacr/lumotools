@@ -200,20 +200,21 @@ export function FileConverter({ converter }) {
 					)}
 					<div />
 					<label htmlFor="fileUpload" className="w-full text-center text-balance">
-						Click to upload {fromType.name} {fromType.titles[0]}
-						{fromType.allowClipboard ? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.` : " or drag-and-drop."}
+						{`Click to upload ${fromType.name} ${fromType.titles[0]} ${
+							fromType.allowClipboard ? `, drag-and-drop, or paste ${fromType.titles[0]} from clipboard.` : " or drag-and-drop."
+						}`}
 					</label>
 				</div>
 				{file ? (
 					<div className="w-full flex flex-row flex-wrap justify-center gap-3">
 						<Button className="w-fit z-10" onClick={() => convertAndSaveFile(false)}>
 							<Download size={16} strokeWidth={2} className="mr-3" />
-							Download as {toType.name}
+							{`Download as ${toType.name}`}
 						</Button>
 						{fromType.allowClipboard && (
 							<Button variant="secondary" className="w-fit z-10" onClick={() => convertAndSaveFile(true)}>
 								<Copy size={16} strokeWidth={2} className="mr-3" />
-								Copy to Clipboard as {toType.name}
+								{`Copy to Clipboard as ${toType.name}`}
 							</Button>
 						)}
 					</div>
@@ -336,12 +337,10 @@ export function TextConverter({ converter }) {
 	}, []);
 
 	return (
-		<div
-			className="flex flex-row w-full gap-4 h-[550px] max-lg:h-[900px] max-lg:flex-col"
-		>
+		<div className="flex flex-row w-full gap-4 h-[550px] max-lg:h-[900px] max-lg:flex-col">
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-row gap-3 justify-between items-center px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">
-					<span className="font-semibold">{fromType.name} Input</span>
+					<span className="font-semibold">{`${fromType.name} Input`}</span>
 					{fileName.length != 0 && <span className="flex-1 text-ellipsis text-right text-sm opacity-60">{fileName}</span>}
 				</div>
 				<div className="relative flex flex-col flex-1 bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
@@ -354,13 +353,13 @@ export function TextConverter({ converter }) {
 					<div className="absolute bottom-4 left-4 right-4 flex flex-row flex-wrap justify-center gap-3">
 						<Button className="flex-1" onClick={uploadFile}>
 							<Upload size={16} strokeWidth={2} className="mr-3" />
-							Upload {fromType.name} File
+							{`Upload ${fromType.name} File`}
 						</Button>
 					</div>
 				</div>
 			</div>
 			<div className="flex flex-col flex-1 overflow-auto">
-				<h2 className="font-semibold px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">{toType.name} Output</h2>
+				<h2 className="font-semibold px-4 py-2 bg-zinc-200 border border-zinc-300 rounded-t-lg">{`${toType.name} Output`}</h2>
 				<div className="relative flex flex-col gap-5 flex-1 overflow-hidden bg-zinc-100 border border-zinc-200 rounded-b-lg border-t-0">
 					{output.length ? (
 						<>
@@ -371,7 +370,7 @@ export function TextConverter({ converter }) {
 								<div className="flex-1 bg-zinc-100">
 									<Button className="w-full" onClick={onDownloadClick}>
 										<Download size={16} strokeWidth={2} className="mr-3" />
-										Download as {toType.name}
+										{`Download as ${toType.name}`}
 									</Button>
 								</div>
 								<div className="flex-1 bg-zinc-100">
@@ -390,7 +389,7 @@ export function TextConverter({ converter }) {
 						<div className="w-full h-full flex flex-col gap-4 p-4 items-center justify-center">
 							<Button className={`w-fit ${hasInput ? "opacity-100" : "opacity-50"}`} onClick={convertFile}>
 								<Wand2 size={16} strokeWidth={2} className="mr-3" />
-								Convert to {toType.name}
+								{`Convert to ${toType.name}`}
 							</Button>
 							{errorMessage.length != 0 && <p className="text-red-600 w-full text-center">{errorMessage}</p>}
 						</div>
