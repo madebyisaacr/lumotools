@@ -27,6 +27,7 @@ const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"rtf-to-txt": convertRTFtoTXT,
 	"csv-to-tsv": convertCSVtoTSV,
 	"tsv-to-csv": convertTSVtoCSV,
+	"vcard-to-csv": convertVCFtoCSV,
 };
 
 export function FileConverter({ converter }) {
@@ -740,6 +741,46 @@ function convertTSVtoCSV(input) {
 
 	// Split the input into lines and convert each
 	return input.split("\n").map(tsvLineToCsvLine).join("\n");
+}
+
+function convertVCFtoCSV(input) {
+    // Split the input into lines
+    const lines = input.split('\n');
+
+    // To store all unique headers across all contacts
+    let headerSet = new Set();
+    let contacts = [];
+    let currentContact = {};
+
+    lines.forEach(line => {
+        if (line.startsWith('BEGIN:VCARD')) {
+            // Start of a new vCard entry, prepare a new currentContact object
+            currentContact = {};
+        } else if (line.startsWith('END:VCARD')) {
+            // End of the current vCard entry, save it
+            contacts.push(currentContact);
+            // Add currentContact's fields to the global headers set
+            Object.keys(currentContact).forEach(header => headerSet.add(header));
+        } else {
+            // Process each line to extract the field and its value
+            const [field, value] = line.split(':', 2); // Split at the first colon only
+            currentContact[field] = value;
+        }
+    });
+
+    // Convert the Set of headers into an array for easier indexing
+    const headers = [...headerSet];
+
+    // Start forming the CSV string with the header row
+    let csvString = headers.join(',') + '\n';
+
+    // Append each contact's values to the CSV string, in the order of headers
+    contacts.forEach(contact => {
+        const row = headers.map(header => contact[header] ? `"${contact[header].replace(/"/g, '""')}"` : '').join(',');
+        csvString += row + '\n';
+    });
+
+    return csvString;
 }
 
 function downloadFile(url, fileName) {

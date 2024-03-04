@@ -18,6 +18,9 @@ export function generateMetadata({ params }) {
 	return {
 		title: `${fromType.name} to ${toType.name} Converter | Lumotools`,
 		description: `Convert ${fromType.name} ${fromType.titles[1]} to ${toType.name} instantly with this free online tool.`,
+		alternates: {
+			canonical: `/convert/${slug}`,
+		},
 	};
 }
 
@@ -75,7 +78,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 				<p className="w-full text-center">
 					{`Convert ${fromType.name} ${fromType.titles[1]} to ${toType.name} instantly with this free online tool.`}
 				</p>
-				<div className="flex flex-row gap-x-8 gap-y-4 pt-2 w-full flex-wrap justify-center items-center">
+				<div className="flex flex-row gap-x-8 gap-y-4 pt-2 w-full flex-wrap justify-center items-center max-sm:hidden">
 					<ChecklistItem>No limits</ChecklistItem>
 					<ChecklistItem>No paywalls</ChecklistItem>
 					<ChecklistItem>No account required</ChecklistItem>

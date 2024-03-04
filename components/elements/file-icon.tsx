@@ -31,6 +31,11 @@ const icons = {
 	user: SquareUserRound,
 };
 
+const fileTypeText = {
+	markdown: "MD",
+	vcard: "VCF",
+}
+
 export function FileIcon({ type, size = 100, hideText = false }) {
 	const fileType = fileTypes[type];
 	const Icon = icons[fileType.icon];
@@ -55,7 +60,7 @@ export function FileIcon({ type, size = 100, hideText = false }) {
 					className="font-bold text-white absolute top-[4%] left-[36%] select-none"
 					style={{ translate: "-50% 0", fontSize: (size / 120) * 20 }}
 				>
-					{type == "markdown" ? "MD" : fileType.name}
+					{fileTypeText[fileType.id] || fileType.name}
 				</span>
 			)}
 			{Icon && (

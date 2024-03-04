@@ -8,7 +8,7 @@ const TITLES = {
 export const alternativeFileTypes = {
 	jpg: "jpeg",
 	yaml: "yml",
-	vcf: "vcard",
+	vcard: "vcf",
 };
 
 export const fileCategories = {
@@ -322,6 +322,7 @@ let baseFileConverters: any[] = [
 	{ types: ["yaml", "json"], component: "text" },
 	{ types: ["csv", "tsv"], component: "text" },
 	{ types: ["tsv", "csv"], component: "text" },
+	{ types: ["vcard", "csv"], component: "text" },
 	
 	// Image
 	{ types: ["webp", "jpg"], component: "file" },
