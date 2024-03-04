@@ -28,6 +28,8 @@ const TEXT_FILE_CONVERTER_FUNCTIONS = {
 	"csv-to-tsv": convertCSVtoTSV,
 	"tsv-to-csv": convertTSVtoCSV,
 	"vcard-to-csv": convertVCFtoCSV,
+	"csv-to-txt": returnDuplicate,
+	"txt-to-csv": returnDuplicate,
 };
 
 export function FileConverter({ converter }) {
@@ -647,6 +649,10 @@ async function convertImageToGIF(file: File, toTypeId: string): Promise<string> 
 			reject("Error converting image to GIF: " + error);
 		}
 	});
+}
+
+function returnDuplicate(input) {
+	return input;
 }
 
 function convertJSONtoCSV(input) {

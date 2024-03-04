@@ -34,6 +34,7 @@ const icons = {
 const fileTypeText = {
 	markdown: "MD",
 	vcard: "VCF",
+	text: "TXT",
 }
 
 export function FileIcon({ type, size = 100, hideText = false }) {

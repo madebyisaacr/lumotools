@@ -9,6 +9,7 @@ export const alternativeFileTypes = {
 	jpg: "jpeg",
 	yaml: "yml",
 	vcard: "vcf",
+	txt: "text",
 };
 
 export const fileCategories = {
@@ -231,7 +232,18 @@ export const fileTypes = {
 		mimeType: "text/plain",
 		description:
 			"TXT files are plain text documents that contain unformatted text, readable by various text editors and word processing software without specialized formatting.",
-		category: "data",
+		category: "document",
+		accentColor: "#4a4a4a",
+		icon: "text",
+	},
+	text: {
+		name: "Text",
+		extensions: ["txt"],
+		titles: TITLES.file,
+		mimeType: "text/plain",
+		description:
+			"Text files are computer files that contain only text and have no special formatting such as bold text, italic text, images, or any other type of media.",
+		category: "document",
 		accentColor: "#4a4a4a",
 		icon: "text",
 	},
@@ -323,6 +335,8 @@ let baseFileConverters: any[] = [
 	{ types: ["csv", "tsv"], component: "text" },
 	{ types: ["tsv", "csv"], component: "text" },
 	{ types: ["vcard", "csv"], component: "text" },
+	{ types: ["csv", "txt"], component: "text" },
+	{ types: ["txt", "csv"], component: "text" },
 	
 	// Image
 	{ types: ["webp", "jpg"], component: "file" },
