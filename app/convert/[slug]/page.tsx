@@ -16,10 +16,17 @@ export function generateMetadata({ params }) {
 	const toType = fileTypes[slug.split("-to-")[1]];
 
 	return {
-		title: `${fromType.name} to ${toType.name} Converter | Lumotools`,
+		title: `${fromType.name} to ${toType.name} Converter`,
 		description: `Convert ${fromType.name} ${fromType.titles[1]} to ${toType.name} instantly with this free online tool.`,
 		alternates: {
 			canonical: `/convert/${slug}`,
+		},
+		openGraph: {
+			title: `${fromType.name} to ${toType.name} Converter`,
+			description: `Convert ${fromType.name} ${fromType.titles[1]} to ${toType.name} instantly with this free online tool.`,
+			url: `https://lumotools.com/convert/${slug}`,
+			siteName: "Lumotools",
+			type: "website",
 		},
 	};
 }
