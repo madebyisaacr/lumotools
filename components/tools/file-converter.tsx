@@ -769,7 +769,7 @@ function convertVCFtoCSV(input) {
     });
 
     // Convert the Set of headers into an array for easier indexing
-    const headers = [...headerSet];
+    const headers = Array.from(headerSet) as string[];
 
     // Start forming the CSV string with the header row
     let csvString = headers.join(',') + '\n';
